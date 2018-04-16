@@ -4,7 +4,7 @@ var _ = require('lodash');
 exports.BookData = function (req, res, next) {
   var bookStore = req.session.bookStore;
   if (!bookStore) {
-    return next(new Boom.notFound('Failed to add book please try again!'));
+    return next(Boom.notFound('Failed to add book please try again!'));
   }
   req.session.result = {
     message: 'Book added successfully!'
@@ -15,7 +15,7 @@ exports.BookData = function (req, res, next) {
 exports.getAllBookData = function (req, res, next) {
   var bookStore = req.session.bookStore;
   if (!bookStore) {
-    return next(new Boom.notFound('Book not found!'));
+    return next(Boom.notFound('Book not found!'));
   }
   req.session.result = bookStore;
   return next();
@@ -24,7 +24,7 @@ exports.getAllBookData = function (req, res, next) {
 exports.deleteBookData = function (req, res, next) {
   var bookStore = req.session.bookStore;
   if (!bookStore) {
-    return next(new Boom.notFound('Failed to delete book!'));
+    return next(Boom.notFound('Failed to delete book!'));
   }
   req.session.result = {success: true, text: 'Delete successful!'};
   return next();
@@ -33,7 +33,7 @@ exports.deleteBookData = function (req, res, next) {
 exports.updateBookData = function(req, res, next){
   var bookStore = req.session.bookStore;
   if (!bookStore) {
-    return next(new Boom.notFound('Failed to update book!'));
+    return next(Boom.notFound('Failed to update book!'));
   }
   req.session.result = bookStore;
   return next();

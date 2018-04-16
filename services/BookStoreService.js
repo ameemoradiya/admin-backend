@@ -1,10 +1,8 @@
 const _ = require('lodash');
 const async = require('async');
 const mongoose = require('mongoose');
-
-const debug = require('debug')('Javandi:BookStoreService');
+const debug = require('debug')('Demo:BookStoreService');
 const Boom = require('boom');
-
 const bookStoreModel = require('../models/bookstore');
 
 //add book
@@ -37,7 +35,7 @@ exports.bookSet = function (req, res, next) {
                         return callback(error);
                     }
                     if (result) {
-                        return callback(new Boom.badRequest('Bookid or Bookname already inserted!'));
+                        return callback(Boom.badRequest('Bookid or Bookname already inserted!'));
                     }
                     return callback();
                 });
@@ -52,7 +50,7 @@ exports.bookSet = function (req, res, next) {
                     newBook: newBook
                 }, function (error, result) {
                     if (error || !result) {
-                        return callback(new Boom.badRequest('Could not add book please try again!'));
+                        return callback(Boom.badRequest('Could not add book please try again!'));
                     }
                     bookStore = result;
                     return callback();
@@ -166,9 +164,9 @@ exports.deleteBookById = function (req, res, next) {
     try {
         let params = _.merge(req.params, req.body);
         if (!params) {
-            return next(new Boom.badRequest('Invalid book!'), null);
+            return next(Boom.badRequest('Invalid book!'), null);
         } else if (!params.bookId) {
-            return next(new Boom.badRequest('Invalid id!'), null);
+            return next(Boom.badRequest('Invalid id!'), null);
         }
         let query = {
             bookId: params.bookId
@@ -195,9 +193,9 @@ exports.deleteBookByName = function (req, res, next) {
         let params = _.merge(req.params, req.body);
 
         if (!params) {
-            return next(new Boom.badRequest('Invalid book!'), null);
+            return next(Boom.badRequest('Invalid book!'), null);
         } else if (!params.bname) {
-            return next(new Boom.badRequest('Invalid bookname!'), null);
+            return next(Boom.badRequest('Invalid bookname!'), null);
         }
 
         let query = {
@@ -225,9 +223,9 @@ exports.deleteBookByAuthor = function (req, res, next) {
         let params = _.merge(req.params, req.body);
 
         if (!params) {
-            return next(new Boom.badRequest('Invalid book!'), null);
+            return next(Boom.badRequest('Invalid book!'), null);
         } else if (!params.bauthorname) {
-            return next(new Boom.badRequest('Invalid bookauthor!'), null);
+            return next(Boom.badRequest('Invalid bookauthor!'), null);
         }
         let query = {
             bauthorname: params.bauthorname
@@ -254,11 +252,11 @@ exports.deleteBookByAuthorDesc = function (req, res, next) {
         let params = _.merge(req.params, req.body);
 
         if (!params) {
-            return next(new Boom.badRequest('Invalid book!'), null);
+            return next(Boom.badRequest('Invalid book!'), null);
         } else if (!params.bauthorname) {
-            return next(new Boom.badRequest('Invalid bookauthor!'), null);
+            return next(Boom.badRequest('Invalid bookauthor!'), null);
         } else if (!params.bdescription) {
-            return next(new Boom.badRequest('Invalid book description!'), null);
+            return next(Boom.badRequest('Invalid book description!'), null);
         }
         let query = {
             bauthorname: params.bauthorname,
@@ -286,11 +284,11 @@ exports.deleteBookByNameCategory = function (req, res, next) {
         let params = _.merge(req.params, req.body);
 
         if (!params) {
-            return next(new Boom.badRequest('Invalid book!'), null);
+            return next(Boom.badRequest('Invalid book!'), null);
         } else if (!params.bname) {
-            return next(new Boom.badRequest('Invalid book name!'), null);
+            return next(Boom.badRequest('Invalid book name!'), null);
         } else if (!params.bcategory) {
-            return next(new Boom.badRequest('Invalid book category!'), null);
+            return next(Boom.badRequest('Invalid book category!'), null);
         }
         let query = {
             bname: params.bname,
@@ -321,11 +319,11 @@ exports.updateBookById = function (req, res, next) {
             validateUpdateBook: function (callback) {
 
                 if (!param) {
-                    return callback(new Boom.badRequest('Invalid Book!'), null);
+                    return callback(Boom.badRequest('Invalid Book!'), null);
                 } else if (!param.bookId) {
-                    return callback(new Boom.badRequest('Invalid id!'), null);
+                    return callback(Boom.badRequest('Invalid id!'), null);
                 } else if (!param.bname) {
-                    return callback(new Boom.badRequest('Invalid book name!'), null);
+                    return callback(Boom.badRequest('Invalid book name!'), null);
                 }
                 let filter = {
                     bname: param.bname
@@ -337,7 +335,7 @@ exports.updateBookById = function (req, res, next) {
                     if (error) {
                         return callback(error);
                     } else if (result) {
-                        return callback(new Boom.conflict('New book you are try to update is already exist!'));
+                        return callback(Boom.conflict('New book you are try to update is already exist!'));
                     }
                     return callback();
                 });
@@ -388,9 +386,9 @@ exports.updateBookByName = function (req, res, next) {
 
     try {
         if (!param) {
-            return next(new Boom.badRequest('Invalid Book!'), null);
+            return next(Boom.badRequest('Invalid Book!'), null);
         } else if (!param.bname) {
-            return next(new Boom.badRequest('Invalid book name!'), null);
+            return next(Boom.badRequest('Invalid book name!'), null);
         }
 
         let set = {
@@ -444,11 +442,11 @@ exports.updateBookByNameAuth = function (req, res, next) {
     try {
 
         if (!param) {
-            return next(new Boom.badRequest('Invalid Book!'), null);
+            return next(Boom.badRequest('Invalid Book!'), null);
         } else if (!param.bname) {
-            return next(new Boom.badRequest('Invalid book name!'), null);
+            return next(Boom.badRequest('Invalid book name!'), null);
         } else if (!param.bauthorname) {
-            return next(new Boom.badRequest('Invalid book author!'), null);
+            return next(Boom.badRequest('Invalid book author!'), null);
         }
 
         let set = {

@@ -16,7 +16,7 @@ const TasksModel = mongoose.model(APP_CONSTANTS.TABLES.TASK, TaskSchema);
 
 exports.findAllByFilter = function (data, callback) {
     if (!data) {
-      return callback(new Boom.notFound('Invalid task!'));
+      return callback(Boom.notFound('Invalid task!'));
     }
     let TaskModelQuery = TasksModel.find(data.filter);
   
@@ -41,7 +41,7 @@ exports.findAllByFilter = function (data, callback) {
 
   exports.countByFilter = function (data, callback) {
     if (!data) {
-      return callback(new Boom.notFound('Invalid task!'));
+      return callback(Boom.notFound('Invalid task!'));
     }
   
     TasksModel.find(data.filter).count().then(function (result) {
@@ -53,9 +53,9 @@ exports.findAllByFilter = function (data, callback) {
 
   exports.findOneByFilter = function (data, callback) {
     if (!data) {
-      return callback(new Boom.badRequest('Invalid search details!'));
+      return callback(Boom.badRequest('Invalid search details!'));
     } else if (!data.filter) {
-      return callback(new Boom.badRequest('Invalid filter!'));
+      return callback(Boom.badRequest('Invalid filter!'));
     }
   
     TasksModel.findOne(data.filter).then(function (result) {
@@ -68,12 +68,12 @@ exports.findAllByFilter = function (data, callback) {
   exports.findOneAndUpdateByFilter = function (data, callback) {
 
     if (!data) {
-      return callback(new Boom.notFound('Invalid task!'));
+      return callback(Boom.notFound('Invalid task!'));
     }
   
     TasksModel.findOneAndUpdate(data.filter, data.updatedData, data.options).then(function (result) {
       if (!result) {
-        return callback(new Boom.badRequest('task not found!'));
+        return callback(Boom.badRequest('task not found!'));
       }
       return callback(null, result);
     }).catch(function (error) {
@@ -84,15 +84,15 @@ exports.findAllByFilter = function (data, callback) {
 
   exports.deleteById = function (data, callback) {
     if (!data) {
-      return callback(new Boom.badRequest('Invalid task!'));
+      return callback(Boom.badRequest('Invalid task!'));
     } else if (!data.id) {
-      return callback(new Boom.badRequest('Invalid id'));
+      return callback(Boom.badRequest('Invalid id'));
     }
   
     let query = {_id: data.id};
     TasksModel.findOneAndRemove(query).then(function (result) {
       if (!result) {
-        return callback(new Boom.badRequest('Task not found!'));
+        return callback(Boom.badRequest('Task not found!'));
       }
       return callback(null, result);
     }).catch(function (error) {
@@ -102,11 +102,11 @@ exports.findAllByFilter = function (data, callback) {
 
   exports.insert = function (data, callback) {
     if (!data) {
-      return callback(new Boom.notFound('Invalid task!'));
+      return callback(Boom.notFound('Invalid task!'));
     }
     let newTask = data.newTask;
     if (!newTask) {
-      return callback(new Boom.badRequest('Invalid task detail'));
+      return callback(Boom.badRequest('Invalid task detail'));
     }
   
     let task = new TasksModel(newTask);

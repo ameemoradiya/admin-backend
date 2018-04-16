@@ -1,10 +1,9 @@
-//= Its contains all category related methods for adminSite and affiliatesSite.
-// 'use strict';
+'use strict';
 
 const _ = require('lodash');
 const async = require('async');
 const mongoose = require('mongoose');
-const debug = require('debug')('Javandi:TaskService');
+const debug = require('debug')('Demo:TaskService');
 const Boom = require('boom');
 
 const taskModel = require('../models/task');
@@ -32,7 +31,7 @@ exports.findTaskByTaskname = function (req, res, next) {
         return next(error);
       }
       if (result) {
-        return next(new Boom.badRequest('Task already inserted!'));
+        return next(Boom.badRequest('Task already inserted!'));
       }
       return next();
     });
@@ -53,7 +52,7 @@ exports.taskSet = function (req, res, next) {
       newTask: newTask
     }, function (error, result) {
       if (error || !result) {
-        return next(new Boom.badRequest('Could not add task please try again!'));
+        return next(Boom.badRequest('Could not add task please try again!'));
       }
       req.session.taskStore = result;
       return next();
@@ -153,11 +152,11 @@ exports.validateUpdateTask = function (req, res, next) {
 
   try {
     if (!params) {
-      return next(new Boom.badRequest('Invalid Task!'), null);
+      return next(Boom.badRequest('Invalid Task!'), null);
     } else if (!params.id || !mongoose.Types.ObjectId.isValid(params.id)) {
-      return next(new Boom.badRequest('Invalid id!'), null);
+      return next(Boom.badRequest('Invalid id!'), null);
     } else if (!params.taskName) {
-      return next(new Boom.badRequest('Invalid task name!'), null);
+      return next(Boom.badRequest('Invalid task name!'), null);
     }
     let filter = {
       taskName: params.taskName
@@ -168,7 +167,7 @@ exports.validateUpdateTask = function (req, res, next) {
       if (error) {
         return next(error);
       } else if (result) {
-        return next(new Boom.conflict('New task you are try to update is already exist!'));
+        return next(Boom.conflict('New task you are try to update is already exist!'));
       }
       return next();
     });
@@ -223,9 +222,9 @@ exports.deleteTask = function (req, res, next) {
     let params = _.merge(req.params, req.body);
 
     if (!params) {
-      return next(new Boom.badRequest('Invalid task!'), null);
+      return next(Boom.badRequest('Invalid task!'), null);
     } else if (!params.task_id || !mongoose.Types.ObjectId.isValid(params.task_id)) {
-      return next(new Boom.badRequest('Invalid id!'), null);
+      return next(Boom.badRequest('Invalid id!'), null);
     }
     taskModel.deleteById({
       id: params.task_id
@@ -248,11 +247,11 @@ exports.validateCompleteTask = function (req, res, next) {
   try {
 
     if (!params) {
-      return next(new Boom.badRequest('Invalid Task!'), null);
+      return next(Boom.badRequest('Invalid Task!'), null);
     } else if (!params._id || !mongoose.Types.ObjectId.isValid(params._id)) {
-      return next(new Boom.badRequest('Invalid id!'), null);
+      return next(Boom.badRequest('Invalid id!'), null);
     } else if (!params.taskName || _.isUndefined(params.taskName)) {
-      return next(new Boom.badRequest('Invalid task name!'), null);
+      return next(Boom.badRequest('Invalid task name!'), null);
     }
     let filter = {
       _id: params.task_id
@@ -263,7 +262,7 @@ exports.validateCompleteTask = function (req, res, next) {
       if (error) {
         return next(error);
       } else if (result) {
-        return next(new Boom.conflict('New task you are try to update is already exist!'));
+        return next(Boom.conflict('New task you are try to update is already exist!'));
       }
       return next();
     });

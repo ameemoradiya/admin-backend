@@ -6,7 +6,6 @@ const validate = require('mongoose-validator');
 const md5 = require('md5');
 const _ = require('lodash');
 const Boom = require('boom');
-
 const APP_CONSTANTS = require('../constants/AppConstants');
 
 
@@ -83,8 +82,10 @@ let usersSchema = new Schema({
     },
     type: {
         type: String
+    },
+    uploadImgName: {
+        type: String
     }
-
 });
 
 function isValidMd5(pass) {
@@ -117,9 +118,9 @@ let UsersModel = mongoose.model(APP_CONSTANTS.TABLES.USERS, usersSchema);
 
 exports.findOneByFilter = function (data, callback) {
     if (!data) {
-        return callback(new Boom.badRequest('Invalid search details'));
+        return callback(Boom.badRequest('Invalid search details'));
     } else if (!data.filter) {
-        return callback(new Boom.badRequest('Invalid filter'));
+        return callback(Boom.badRequest('Invalid filter'));
     }
 
     let usersModelQuery = UsersModel.findOne(data.filter);
@@ -136,11 +137,11 @@ exports.findOneByFilter = function (data, callback) {
 
 exports.insert = function (data, callback) {
     if (!data) {
-        return callback(new Boom.notFound('Invalid user!'));
+        return callback(Boom.notFound('Invalid user!'));
     }
     let newUser = data.newUser;
     if (!newUser) {
-        return callback(new Boom.badRequest('Invalid user detail'));
+        return callback(Boom.badRequest('Invalid user detail'));
     }
 
     let user = new UsersModel(newUser);
@@ -153,11 +154,12 @@ exports.insert = function (data, callback) {
 
 exports.findOneAndUpdateByFilter = function (data, callback) {
     if (!data) {
-        return callback(new Boom.notFound('Invalid user!'));
+        return callback(Boom.notFound('Invalid user!'));
     }
+    
     UsersModel.findOneAndUpdate(data.filter, data.updatedData, data.options).then(function (result) {
         if (!result) {
-            return callback(new Boom.badRequest('User not found!'));
+            return callback(Boom.badRequest('User not found!'));
         }
         return callback(null, result);
     }).catch(function (error) {
@@ -168,7 +170,7 @@ exports.findOneAndUpdateByFilter = function (data, callback) {
 
 exports.findAllByFilter = function (data, callback) {
     if (!data) {
-        return callback(new Boom.notFound('Invalid user!'));
+        return callback(Boom.notFound('Invalid user!'));
     }
     var usersModelQuery = UsersModel.find(data.filter);
     if (data.sort) {
@@ -191,8 +193,8 @@ exports.findAllByFilter = function (data, callback) {
 };
 
 exports.countByFilter = function (data, callback) {
-    if (_.isEmpty(data)) {
-        return callback(new Boom.notFound('Invalid user!'));
+    if (!data) {
+        return callback(Boom.notFound('Invalid user!'));
     }
 
     UsersModel.find(data.filter).count().then(function (result) {
@@ -204,18 +206,20 @@ exports.countByFilter = function (data, callback) {
 
 exports.deleteById = function (data, callback) {
     if (!data) {
-      return callback(new Boom.badRequest('Invalid User!'));
+        return callback(Boom.badRequest('Invalid User!'));
     } else if (!data.id) {
-      return callback(new Boom.badRequest('Invalid id'));
+        return callback(Boom.badRequest('Invalid id'));
     }
-  
-    let query = {_id: data.id};
+
+    let query = {
+        _id: data.id
+    };
     UsersModel.findOneAndRemove(query).then(function (result) {
-      if (!result) {
-        return callback(new Boom.badRequest('User not found!'));
-      }
-      return callback(null, result);
+        if (!result) {
+            return callback(Boom.badRequest('User not found!'));
+        }
+        return callback(null, result);
     }).catch(function (error) {
-      return callback(error);
+        return callback(error);
     });
-  };
+};

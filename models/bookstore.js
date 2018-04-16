@@ -21,9 +21,9 @@ const BooksModel = mongoose.model(APP_CONSTANTS.TABLES.BOOK, BookSchema);
 
 exports.findOneByFilter = function (data, callback) {
   if (!data) {
-    return callback(new Boom.badRequest('Invalid search details!'));
+    return callback(Boom.badRequest('Invalid search details!'));
   } else if (!data.filter) {
-    return callback(new Boom.badRequest('Invalid filter!'));
+    return callback(Boom.badRequest('Invalid filter!'));
   }
 
   BooksModel.findOne(data.filter).then(function (result) {
@@ -35,11 +35,11 @@ exports.findOneByFilter = function (data, callback) {
 
 exports.insert = function (data, callback) {
   if (!data) {
-    return callback(new Boom.notFound('Invalid task!'));
+    return callback(Boom.notFound('Invalid task!'));
   }
   let newBook = data.newBook;
   if (!newBook) {
-    return callback(new Boom.badRequest('Invalid task detail'));
+    return callback(Boom.badRequest('Invalid task detail'));
   }
 
   let book = new BooksModel(newBook);
@@ -52,7 +52,7 @@ exports.insert = function (data, callback) {
 exports.findAllByFilter = function (data, callback) {
   
   if (!data) {
-    return callback(new Boom.notFound('Invalid book!'));
+    return callback(Boom.notFound('Invalid book!'));
   }
   let BookModelQuery = BooksModel.find(data.filter);
 
@@ -77,7 +77,7 @@ exports.findAllByFilter = function (data, callback) {
 
 exports.countByFilter = function (data, callback) {
   if (!data) {
-    return callback(new Boom.notFound('Invalid book!'));
+    return callback(Boom.notFound('Invalid book!'));
   }
 
   BooksModel.find(data.filter).count().then(function (result) {
@@ -90,12 +90,12 @@ exports.countByFilter = function (data, callback) {
 exports.deleteBook = function (data, callback) {
   
   if (!data.filter) {
-    return callback(new Boom.badRequest('Invalid book!'));
+    return callback(Boom.badRequest('Invalid book!'));
   }
 
   BooksModel.findOneAndRemove(data.filter).then(function (result) {
     if (!result) {
-      return callback(new Boom.badRequest('book not found!'));
+      return callback(Boom.badRequest('book not found!'));
     }
     return callback(null, result);
   }).catch(function (error) {
@@ -106,12 +106,12 @@ exports.deleteBook = function (data, callback) {
 exports.findOneAndUpdateByFilter = function (data, callback) {
   
   if (!data) {
-    return callback(new Boom.notFound('Invalid book!'));
+    return callback(Boom.notFound('Invalid book!'));
   }
 
   BooksModel.findOneAndUpdate(data.filter, data.updatedData, data.options).then(function (result) {
-    if (_.isEmpty(result)) {
-      return callback(new Boom.badRequest('book not found!'));
+    if (!result) {
+      return callback(Boom.badRequest('book not found!'));
     }
     return callback(null, result);
   }).catch(function (error) {
@@ -123,12 +123,12 @@ exports.findOneAndUpdateByFilter = function (data, callback) {
 exports.findAllByAggregate = function (data, callback) {
   
   if (!data || !data.aggregateFilter) {
-    return callback(new Boom.notFound('Invalid track!'));
+    return callback(Boom.notFound('Invalid track!'));
   }
 
   let BookModelQuery = BooksModel.aggregate(data.aggregateFilter);
 
-  if (!_.isEmpty(data.options) && !_.isUndefined(data.options)) {
+  if (data.options) {
     BookModelQuery.options = data.options;
   }
 

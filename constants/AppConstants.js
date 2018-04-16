@@ -22,6 +22,10 @@ exports.TABLESETTING = {
     SKIP: 0,
 };
 
+exports.IMAGES_PATH = {
+    IMAGES: ROOT_PATH + '/public/assets/profilePhotos/'
+};
+
 exports.EMAIL_TEMPLATE = ROOT_PATH + '/constants/template/email/';
 
 exports.STRING = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';

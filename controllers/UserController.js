@@ -4,7 +4,7 @@ let _ = require('lodash');
 exports.registerData = function (req, res, next) {
     let userStore = req.session.userStore;
     if (!userStore) {
-        return next(new Boom.notFound('Failed to register please try again!'));
+        return next(Boom.notFound('Failed to register please try again!'));
     }
     req.session.result = {
         message: 'Registration completed successfully!'
@@ -25,7 +25,7 @@ exports.logInData = function (req, res, next) {
 exports.getCurrentUserData = function (req, res, next) {
     let userStore = req.session.userStore;
     if (!userStore) {
-        return next(new Boom.notFound('User not found!'));
+        return next(Boom.notFound('User not found!'));
     }
     req.session.result = userStore;
     return next();
@@ -34,7 +34,7 @@ exports.getCurrentUserData = function (req, res, next) {
 exports.updateUserData = function (req, res, next) {
     let userStore = req.session.userStore;
     if (!userStore) {
-        return next(new Boom.notFound('Failed to update user!'));
+        return next(Boom.notFound('Failed to update user!'));
     }
     req.session.result = {
         message: 'User updated successfully!'
@@ -45,7 +45,7 @@ exports.updateUserData = function (req, res, next) {
 exports.findOneUserData = function (req, res, next) {
     var userStore = req.session.userStore;
     if (!userStore) {
-        return next(new Boom.notFound('User not found!'));
+        return next(Boom.notFound('User not found!'));
     }
     req.session.result = userStore;
     return next();
@@ -53,8 +53,8 @@ exports.findOneUserData = function (req, res, next) {
 
 exports.resetUserPasswordData = function (req, res, next) {
     var userStore = req.session.userStore;
-    if (_.isUndefined(userStore) || _.isEmpty(userStore)) {
-        return next(new Boom.notFound('Unable to reset password!'));
+    if (!userStore) {
+        return next(Boom.notFound('Unable to reset password!'));
     }
     req.session.result = {
         message: 'Password reset successfully!'
@@ -64,8 +64,8 @@ exports.resetUserPasswordData = function (req, res, next) {
 
 exports.updateUserByadmnData = function (req, res, next) {
     var userStore = req.session.userStore;
-    if (_.isEmpty(userStore) || _.isUndefined(userStore)) {
-        return next(new Boom.notFound('Failed to update user!'));
+    if (!userStore) {
+        return next(Boom.notFound('Failed to update user!'));
     }
     req.session.result = {
         message: 'User updated successfully!'
@@ -75,7 +75,7 @@ exports.updateUserByadmnData = function (req, res, next) {
 
 exports.getAllForAffiliatesTableData = function (req, res, next) {
     var userStore = req.session.userStore;
-    if (_.isUndefined(userStore) || _.isEmpty(userStore)) {
+    if (!userStore) {
         req.session.result = [];
         return next();
     }
@@ -86,8 +86,25 @@ exports.getAllForAffiliatesTableData = function (req, res, next) {
 exports.deleteUserByadmnData = function (req, res, next) {
     var userStore = req.session.userStore;
     if (!userStore) {
-      return next(new Boom.notFound('Failed to delete user!'));
+      return next(Boom.notFound('Failed to delete user!'));
     }
     req.session.result = {success: true, text: 'Delete successful!'};
     return next();
   };
+
+  exports.addProfileData = function (req, res, next) {
+    var imageStore = req.session.userStore;
+    if (!imageStore) {
+      return next(Boom.notFound('Failed to add image!'));
+    }
+    req.session.result = imageStore;
+    return next();
+  };
+exports.deleteProfileData = function (req, res, next) {
+    var imageDatastore = req.session.userStore;
+    if (!imageDatastore) {
+      return next(Boom.notFound('Failed to delete image!'));
+    }
+    req.session.result = imageDatastore;
+    return next();
+};

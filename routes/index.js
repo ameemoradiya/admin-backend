@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-
 const tasks = require('../models/task');
 const bookstore = require('../models/bookstore');
 
@@ -8,6 +7,7 @@ const bookstore = require('../models/bookstore');
 const task = require('../routes/TaskRoutes');
 const bstore = require('../routes/BookStoreRoutes');
 const UserRoutes = require('../routes/UserRoutes');
+const adminRoutes = require('../routes/admin/index');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -24,6 +24,6 @@ router.use('/books', bstore);
 router.use('/user', UserRoutes);
 
 //# UserRoutes Route
-router.use('/admin', UserRoutes);
+router.use('/admin', adminRoutes);
 
 module.exports = router;

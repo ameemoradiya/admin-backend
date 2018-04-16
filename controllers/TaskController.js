@@ -7,7 +7,7 @@ var _ = require('lodash');
 exports.getAllTaskData = function (req, res, next) {
   var taskStore = req.session.taskStore;
   if (!taskStore) {
-    return next(new Boom.notFound('Task not found!'));
+    return next(Boom.notFound('Task not found!'));
   }
   req.session.result = taskStore;
   return next();
@@ -16,7 +16,7 @@ exports.getAllTaskData = function (req, res, next) {
 exports.updateTaskData = function(req, res, next){
   var taskStore = req.session.taskStore;
   if (!taskStore) {
-    return next(new Boom.notFound('Failed to update task!'));
+    return next(Boom.notFound('Failed to update task!'));
   }
   req.session.result = taskStore;
   return next();
@@ -25,7 +25,7 @@ exports.updateTaskData = function(req, res, next){
 exports.deleteTaskData = function (req, res, next) {
   var taskStore = req.session.taskStore;
   if (!taskStore) {
-    return next(new Boom.notFound('Failed to delete task!'));
+    return next(Boom.notFound('Failed to delete task!'));
   }
   req.session.result = {success: true, text: 'Delete successful!'};
   return next();
@@ -34,7 +34,7 @@ exports.deleteTaskData = function (req, res, next) {
 exports.TaskData = function (req, res, next) {
   var taskStore = req.session.taskStore;
   if (!taskStore) {
-    return next(new Boom.notFound('Failed to add task please try again!'));
+    return next(Boom.notFound('Failed to add task please try again!'));
   }
   req.session.result = {message: 'Task added successfully!'};
   return next();

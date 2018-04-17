@@ -1,5 +1,8 @@
+'use strict';
+
+const debug = require('debug')('Demo:UserController');
 const Boom = require('boom');
-let _ = require('lodash');
+const _ = require('lodash');
 
 exports.registerData = function (req, res, next) {
     let userStore = req.session.userStore;
@@ -43,7 +46,7 @@ exports.updateUserData = function (req, res, next) {
 };
 
 exports.findOneUserData = function (req, res, next) {
-    var userStore = req.session.userStore;
+    let userStore = req.session.userStore;
     if (!userStore) {
         return next(Boom.notFound('User not found!'));
     }
@@ -52,7 +55,7 @@ exports.findOneUserData = function (req, res, next) {
 };
 
 exports.resetUserPasswordData = function (req, res, next) {
-    var userStore = req.session.userStore;
+    let userStore = req.session.userStore;
     if (!userStore) {
         return next(Boom.notFound('Unable to reset password!'));
     }
@@ -63,7 +66,7 @@ exports.resetUserPasswordData = function (req, res, next) {
 };
 
 exports.updateUserByadmnData = function (req, res, next) {
-    var userStore = req.session.userStore;
+    let userStore = req.session.userStore;
     if (!userStore) {
         return next(Boom.notFound('Failed to update user!'));
     }
@@ -74,7 +77,7 @@ exports.updateUserByadmnData = function (req, res, next) {
 };
 
 exports.getAllForAffiliatesTableData = function (req, res, next) {
-    var userStore = req.session.userStore;
+    let userStore = req.session.userStore;
     if (!userStore) {
         req.session.result = [];
         return next();
@@ -84,7 +87,7 @@ exports.getAllForAffiliatesTableData = function (req, res, next) {
 };
 
 exports.deleteUserByadmnData = function (req, res, next) {
-    var userStore = req.session.userStore;
+    let userStore = req.session.userStore;
     if (!userStore) {
       return next(Boom.notFound('Failed to delete user!'));
     }
@@ -93,7 +96,7 @@ exports.deleteUserByadmnData = function (req, res, next) {
   };
 
   exports.addProfileData = function (req, res, next) {
-    var imageStore = req.session.userStore;
+    let imageStore = req.session.userStore;
     if (!imageStore) {
       return next(Boom.notFound('Failed to add image!'));
     }
@@ -101,7 +104,7 @@ exports.deleteUserByadmnData = function (req, res, next) {
     return next();
   };
 exports.deleteProfileData = function (req, res, next) {
-    var imageDatastore = req.session.userStore;
+    let imageDatastore = req.session.userStore;
     if (!imageDatastore) {
       return next(Boom.notFound('Failed to delete image!'));
     }

@@ -8,8 +8,7 @@ let storage = multer.diskStorage({ //multers disk storage settings
     destination: function (req, file, cb) {
         cb(null, './public/assets/profilePhotos');
     },
-    filename: function (req, file, cb) {
-        // var datetimestamp = Date.now();
+    filename: function (req, file, cb) {        
         let extArray = file.mimetype.split("/");
         let extension = extArray[extArray.length - 1];
         cb(null, file.fieldname + '-' + Date.now() + '.' + extension);
@@ -23,7 +22,6 @@ let upload = multer({
 router.post('/logIn', [
     userService.validateLogIn,
     userService.findUser,
-    userService.generateTokenUser,
     userService.logIn,
     userController.logInData
 ]);

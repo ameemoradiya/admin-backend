@@ -8,7 +8,7 @@ const passport = require('../../lib/passport/index');
 router.post('/resetPassword', [
     userService.findUserByEmail,
     userService.resetUserPassword,
-    userService.sendEmailReserPass,
+    userService.sendEmailResetPass,
     userController.resetUserPasswordData
 ]);
 

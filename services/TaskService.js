@@ -250,7 +250,7 @@ exports.validateCompleteTask = function (req, res, next) {
       return next(Boom.badRequest('Invalid Task!'), null);
     } else if (!params._id || !mongoose.Types.ObjectId.isValid(params._id)) {
       return next(Boom.badRequest('Invalid id!'), null);
-    } else if (!params.taskName || _.isUndefined(params.taskName)) {
+    } else if (!params.taskName) {
       return next(Boom.badRequest('Invalid task name!'), null);
     }
     let filter = {

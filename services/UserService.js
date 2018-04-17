@@ -163,45 +163,44 @@ exports.register = function (req, res, next) {
 };
 
 exports.sendEmailUserReg = function (req, res, next) {
-    try{
+    try {
         let params = _.merge(req.body, req.query);
-        nodemailer.createTestAccount((err, account) => {
-            let transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-                user: 'am.moradiya01@gmail.com',
-                pass: 'password@password'
-            }
-        });
+        fs.readFile(APP_CONSTANTS.EMAIL_TEMPLATE + 'userRegister.html', 'utf8', function (error, fileData) {
 
-        const html = `<h5>Hey ${params.username}!</h5>
-        <p>Your account has been registered.</p>
-        <table class="social" style="border-top:1px solid #bebebe">
-        </br>
-        <tr>
-            <td>Your Login credentials are:</td>
-            </tr>
-            <tr>
-            <td>Username: ${params.username}</td>
-            </tr>
-            <tr>
-            <td>Password: ${params.password}</td>
-            </tr>
-            </table>`;
-            // setup email data with unicode symbols
-            let mailOptions = {
-                from: 'am.moradiya01@gmail.com', // sender address
-                to: params.email,
-                subject: 'User Registered',
-                html: html
+            if (error) {
+                return next(Boom.notFound('Unable to reset password!'));
+            }
+
+            let compiledTemplate = _.template(fileData);
+            let emailData = {
+                username: params.username,
+                password: params.password
             };
-            // send mail with defined transport object
-            transporter.sendMail(mailOptions, (error, info) => {
-                if (error) {
-                    return next(error);
-                }
-                debug('Preview URL: %s', info.response);
-                return next();
+            compiledTemplate = compiledTemplate(emailData);
+            let htmlData = juice(compiledTemplate);
+            nodemailer.createTestAccount((err, account) => {
+                let transporter = nodemailer.createTransport({
+                    service: 'gmail',
+                    auth: {
+                        user: APP_CONSTANTS.SEND_EMAIL.EMAIL,
+                        pass: APP_CONSTANTS.SEND_EMAIL.PASS
+                    }
+                });
+
+                let mailOptions = {
+                    from: APP_CONSTANTS.SEND_EMAIL.EMAIL, // sender address
+                    to: params.email,
+                    subject: 'User Registered',
+                    html: htmlData
+                };
+
+                transporter.sendMail(mailOptions, (error, info) => {
+                    if (error) {
+                        return next(error);
+                    }
+                    debug('Preview URL: %s', info.response);
+                    return next();
+                });
             });
         });
     } catch (error) {
@@ -253,7 +252,6 @@ exports.findUser = function (req, res, next) {
             filter: filter
         }, function (error, result) {
             if (error || !result) {
-                //debug('error', result);
                 return next(Boom.badRequest('User not found or not activated yet!'), null);
             }
             req.session.userStore = result;
@@ -264,13 +262,14 @@ exports.findUser = function (req, res, next) {
         return next(error);
     }
 
-}
+};
 
-exports.generateTokenUser = function (req, res, next) {
-    debug('Inside generateTokenUser service.');
+exports.logIn = function (req, res, next) {
+    debug('Inside logIn service.');
     try {
         let params = req.body;
         let userStore = req.session.userStore;
+        
         jwt.sign({
             u: userStore.username,
             t: userStore.type
@@ -281,16 +280,6 @@ exports.generateTokenUser = function (req, res, next) {
             userStore.token = token;
             return next();
         });
-    } catch (error) {
-        debug('error %o', error.stack);
-        return next(error);
-    }
-};
-exports.logIn = function (req, res, next) {
-    debug('Inside logIn service.');
-    try {
-        let params = req.body;
-        let userStore = req.session.userStore;
 
         if (!userStore.token) {
             return next(Boom.badRequest('Could not log In please try again or contact administrator!'), null);
@@ -425,45 +414,59 @@ exports.updateUser = function (req, res, next) {
     }
 };
 
-exports.sendEmailProfileUpdate = function (req, res, next){
+exports.sendEmailProfileUpdate = function (req, res, next) {
     try {
         let params = req.body;
-        nodemailer.createTestAccount((err, account) => {
-            // create reusable transporter object using the default SMTP transport
-            let transporter = nodemailer.createTransport({
-                service: 'gmail',
-            auth: {
-                user: 'am.moradiya01@gmail.com',
-                pass: 'password@password'
-            }
-        });
+        fs.readFile(APP_CONSTANTS.EMAIL_TEMPLATE + 'userProfileUpdate.html', 'utf8', function (error, fileData) {
 
-        const html = `<h2>Dear ${params.username}</h2> <p>Your account details and/or user profile has been altered on our website. The administrators have chosen to notify users of certain changes to their accounts. If you did not make these changes, please contact us immediately.</p>`;
-        // setup email data with unicode symbols
-        let mailOptions = {
-            from: '"Fred Foo 👻" <no-reply@pangalink.net>',
-            to: params.email,
-            subject: 'Profile Change',
-            html: html
-        };
-
-        // send mail with defined transport object
-        transporter.sendMail(mailOptions, (error, info) => {
             if (error) {
-                return next(error);
+                return next(Boom.notFound('Unable to update Profile!'));
             }
-            Debug('Preview URL: %s', info.response);
+
+            let compiledTemplate = _.template(fileData);
+            let emailData = {
+                username: params.username,
+            };
+            compiledTemplate = compiledTemplate(emailData);
+            let htmlData = juice(compiledTemplate);
+            nodemailer.createTestAccount((err, account) => {
+
+                let transporter = nodemailer.createTransport({
+                    service: 'gmail',
+                    auth: {
+                        user: APP_CONSTANTS.SEND_EMAIL.EMAIL,
+                        pass: APP_CONSTANTS.SEND_EMAIL.PASS
+                    }
+                });
+
+                // setup email data with unicode symbols
+                let mailOptions = {
+                    from: APP_CONSTANTS.SEND_EMAIL.EMAIL,
+                    to: params.email,
+                    subject: 'Profile Change',
+                    html: htmlData
+                };
+
+                // send mail with defined transport object
+                transporter.sendMail(mailOptions, (error, info) => {
+                    if (error) {
+                        return next(error);
+                    }
+                    debug('Preview URL: %s', info.response);
+                    return next();
+                });
+            });
+            return next();
         });
-    });
-} catch (error) {
-    debug('error %o', error.stack);
-    return next(error);
-}
+    } catch (error) {
+        debug('error %o', error.stack);
+        return next(error);
+    }
 }
 
 exports.findOneUser = function (req, res, next) {
     debug('Inside findOneUser service.');
-    var params = req.body;
+    let params = req.body;
     try {
         if (!params) {
             return next(Boom.badRequest('Invalid user!'), null);
@@ -471,7 +474,7 @@ exports.findOneUser = function (req, res, next) {
             return next(Boom.badRequest('Invalid id!'), null);
         }
 
-        var filter = {
+        let filter = {
             _id: mongoose.Types.ObjectId(params.id),
             token: req.headers.authorization,
             type: '1'
@@ -523,14 +526,14 @@ exports.resetUserPassword = function (req, res, next) {
     debug('Inside resetUserPassword service.');
 
     try {
-        var params = req.body;
+        let params = req.body;
         let userStore = req.session.userStore;
 
         if (!userStore) {
             return next(Boom.badRequest('Invalid email!'));
         }
 
-        newPassword = _.join(_.sampleSize(_.shuffle(_.split(APP_CONSTANTS.STRING, '')), 10), '');
+        newPassword = Math.random().toString(36).slice(-8);
 
         if (!params.usermail) {
             return next(Boom.badRequest('Invalid email!'));
@@ -568,10 +571,10 @@ exports.resetUserPassword = function (req, res, next) {
 
 };
 
-exports.sendEmailReserPass = function (req, res, next) {
+exports.sendEmailResetPass = function (req, res, next) {
     debug('Inside sendEmail service.');
     try {
-        var params = req.body;
+        let params = req.body;
         if (!params.usermail) {
             return next(Boom.badRequest('Invalid email!'));
         }
@@ -587,24 +590,24 @@ exports.sendEmailReserPass = function (req, res, next) {
                 return next(Boom.notFound('Unable to reset password!'));
             }
 
-            var compiledTemplate = _.template(fileData);
-            var emailData = {
+            let compiledTemplate = _.template(fileData);
+            let emailData = {
                 fullname: userStore.fullname,
                 newPassword: newPassword,
                 logoUrl: CONFIG_CONSTANTS.CONFIG.uiUrl + '/test-img.png'
             };
             compiledTemplate = compiledTemplate(emailData);
-            var htmlData = juice(compiledTemplate);
+            let htmlData = juice(compiledTemplate);
             nodemailer.createTestAccount((err, account) => {
                 let transporter = nodemailer.createTransport({
                     service: 'gmail',
                     auth: {
-                        user: 'am.moradiya01@gmail.com',
-                        pass: 'password@password'
+                        user: APP_CONSTANTS.SEND_EMAIL.EMAIL,
+                        pass: APP_CONSTANTS.SEND_EMAIL.PASS
                     }
                 });
-                var mailOptions = {
-                    from: 'sender@server.com',
+                let mailOptions = {
+                    from: APP_CONSTANTS.SEND_EMAIL.EMAIL,
                     to: userStore.email,
                     subject: 'Your password has been changed',
                     html: htmlData
@@ -643,7 +646,7 @@ exports.updateUserByadmn = function (req, res, next) {
             newPassword = md5(params.newPassword);
         }
 
-        var set = {
+        let set = {
             fullname: params.fullname,
             username: params.username,
             company: params.company,
@@ -665,13 +668,13 @@ exports.updateUserByadmn = function (req, res, next) {
             set.password_clear = params.newPassword;
         }
 
-        var filter = {
+        let filter = {
             _id: mongoose.Types.ObjectId(params._id)
         };
-        var updatedData = {
+        let updatedData = {
             $set: _.compactObject(set)
         };
-        var options = {
+        let options = {
             new: true,
             runValidators: true
         };
@@ -694,20 +697,20 @@ exports.updateUserByadmn = function (req, res, next) {
 
 exports.getAllForAffiliatesTable = function (req, res, next) {
     debug('Inside getAllForAffiliatesTable service.');
-    var responseData = {
+    let responseData = {
         recordsTotal: 0,
         recordsFiltered: 0,
         data: []
     };
     try {
-        var params = req.body;
+        let params = req.body;
 
-        var searchQuery = {
+        let searchQuery = {
             'type': '1'
         };
         let pageNo = parseInt(params.pagenumber);
         let size = parseInt(params.perpage);
-        var queryFilter = {
+        let queryFilter = {
             limit: APP_CONSTANTS.TABLESETTING.LIMIT,
             offset: pageNo > 0 ? ((pageNo - 1) * size) : 0
         };
@@ -729,7 +732,7 @@ exports.getAllForAffiliatesTable = function (req, res, next) {
 
 
             if (params.search) {
-                var queryTemp = [];
+                let queryTemp = [];
                 queryTemp.push({
                     username: {
                         $regex: ".*" + params.search + ".*",
@@ -764,7 +767,7 @@ exports.getAllForAffiliatesTable = function (req, res, next) {
         async.series({
             findUsers: function (innerCallback) {
 
-                var select = {
+                let select = {
                     password: 0,
                     passwordRetype: 0
                 };
@@ -805,7 +808,7 @@ exports.getAllForAffiliatesTable = function (req, res, next) {
 
             totalRecordCount: function (innerCallback) {
 
-                var filter = {
+                let filter = {
                     type: '1'
                 };
                 userModel.countByFilter({
@@ -874,7 +877,7 @@ exports.addProfilePhoto = function (req, res, next) {
     debug('Inside addProfilePhoto service.');
     try {
         let params = req.body;
-        var newImage = params;
+        let newImage = params;
         newImage.uploadImgBy = params.decoded_user.username;
         newImage.uploadImgName = req.file.filename;
 
@@ -906,7 +909,7 @@ exports.addProfilePhoto = function (req, res, next) {
         async.series({
             addImage: function (callback) {
 
-                var newImage = params;
+                let newImage = params;
                 newImage.uploadImgBy = params.decoded_user.username;
                 newImage.uploadImgName = req.file.filename;
 
@@ -958,7 +961,7 @@ exports.deleteProfilePhoto = function (req, res, next) {
         let filter = {
             _id: req.params.id
         };
-    
+
         let set = {
             uploadImgName: '',
         };

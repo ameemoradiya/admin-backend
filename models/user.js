@@ -172,7 +172,7 @@ exports.findAllByFilter = function (data, callback) {
     if (!data) {
         return callback(Boom.notFound('Invalid user!'));
     }
-    var usersModelQuery = UsersModel.find(data.filter);
+    let usersModelQuery = UsersModel.find(data.filter);
     if (data.sort) {
         usersModelQuery.sort(data.sort);
     }

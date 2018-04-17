@@ -1,5 +1,5 @@
 'use strict';
-var ROOT_PATH = process.cwd();
+let ROOT_PATH = process.cwd();
 
 exports.TABLES = {
     TASK: 'Task',
@@ -27,5 +27,9 @@ exports.IMAGES_PATH = {
 };
 
 exports.EMAIL_TEMPLATE = ROOT_PATH + '/constants/template/email/';
+exports.SEND_EMAIL = {
+    EMAIL: 'am.moradiya01@gmail.com',
+    PASS: 'password@password'
+};
 
 exports.STRING = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';

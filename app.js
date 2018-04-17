@@ -7,11 +7,12 @@ const session = require('express-session');
 const bodyParser = require('body-parser');
 const AppConfig = require('./lib/AppConfig');
 const index = require('./routes/index');
+const adminRoutes = require('./routes/admin/index');
 
 //Custom plugins, Don't remove it.
 require('./lib/utils/lodash');
 
-var http = require('http');
+const http = require('http');
 app.set(http);
 //DB connection
 require('./lib/db/index');
@@ -28,24 +29,26 @@ app.use(session({
   resave: false
 }));
 
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
 app.use(bodyParser.json());
 
 app.use(express.static(path.join(__dirname, '/public/assets/')));
-// app.use(express.static(path.join(__dirname, '/uploads/')));
 
 app.use(function (request, response, next) {
-  response.setHeader('Access-Control-Allow-Origin', '*'); 
-  response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');  
-  response.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type, Accept, enctype, X-Requested-With, Content-Length');  
-  response.setHeader("Access-Control-Allow-Origin", "http://localhost:4200");
+  response.setHeader('Access-Control-Allow-Origin', '*');
+  response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+  response.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type, Accept, enctype, X-Requested-With, Content-Length');
   response.setHeader('Access-Control-Allow-Credentials', 'true');
   next();
- });
+});
 
 app.use(AppConfig.trimParams);
 
 app.use('/', index);
+//# UserRoutes Route
+app.use('/admin', adminRoutes);
 
 // Error handling
 app.use(AppConfig.handleError);

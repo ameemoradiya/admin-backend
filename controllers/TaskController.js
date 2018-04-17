@@ -1,11 +1,11 @@
-// 'use strict';
+'use strict';
 
-//var debug = require('debug')('Javandi:PublisherCategoryController');
-var Boom = require('boom');
-var _ = require('lodash');
+const debug = require('debug')('Demo:TaskController');
+const Boom = require('boom');
+const _ = require('lodash');
 
 exports.getAllTaskData = function (req, res, next) {
-  var taskStore = req.session.taskStore;
+  let taskStore = req.session.taskStore;
   if (!taskStore) {
     return next(Boom.notFound('Task not found!'));
   }
@@ -14,7 +14,7 @@ exports.getAllTaskData = function (req, res, next) {
 };
 
 exports.updateTaskData = function(req, res, next){
-  var taskStore = req.session.taskStore;
+  let taskStore = req.session.taskStore;
   if (!taskStore) {
     return next(Boom.notFound('Failed to update task!'));
   }
@@ -23,7 +23,7 @@ exports.updateTaskData = function(req, res, next){
 };
 
 exports.deleteTaskData = function (req, res, next) {
-  var taskStore = req.session.taskStore;
+  let taskStore = req.session.taskStore;
   if (!taskStore) {
     return next(Boom.notFound('Failed to delete task!'));
   }
@@ -32,7 +32,7 @@ exports.deleteTaskData = function (req, res, next) {
 };
 
 exports.TaskData = function (req, res, next) {
-  var taskStore = req.session.taskStore;
+  let taskStore = req.session.taskStore;
   if (!taskStore) {
     return next(Boom.notFound('Failed to add task please try again!'));
   }

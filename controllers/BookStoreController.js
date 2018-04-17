@@ -1,8 +1,11 @@
-var Boom = require('boom');
-var _ = require('lodash');
+'use strict';
+
+const debug = require('debug')('Demo:BookStoreController');
+const Boom = require('boom');
+const _ = require('lodash');
 
 exports.BookData = function (req, res, next) {
-  var bookStore = req.session.bookStore;
+  let bookStore = req.session.bookStore;
   if (!bookStore) {
     return next(Boom.notFound('Failed to add book please try again!'));
   }
@@ -13,7 +16,7 @@ exports.BookData = function (req, res, next) {
 };
 
 exports.getAllBookData = function (req, res, next) {
-  var bookStore = req.session.bookStore;
+  let bookStore = req.session.bookStore;
   if (!bookStore) {
     return next(Boom.notFound('Book not found!'));
   }
@@ -22,7 +25,7 @@ exports.getAllBookData = function (req, res, next) {
 };
 
 exports.deleteBookData = function (req, res, next) {
-  var bookStore = req.session.bookStore;
+  let bookStore = req.session.bookStore;
   if (!bookStore) {
     return next(Boom.notFound('Failed to delete book!'));
   }
@@ -31,7 +34,7 @@ exports.deleteBookData = function (req, res, next) {
 };
 
 exports.updateBookData = function(req, res, next){
-  var bookStore = req.session.bookStore;
+  let bookStore = req.session.bookStore;
   if (!bookStore) {
     return next(Boom.notFound('Failed to update book!'));
   }

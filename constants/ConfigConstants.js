@@ -1,8 +1,8 @@
 'use strict';
 
-var ENVIRONMENT = require('./Environment');
-var CONFIG = {};
-var nodeEnv = ENVIRONMENT.ENV;
+const ENVIRONMENT = require('./Environment');
+let CONFIG = {};
+let nodeEnv = ENVIRONMENT.ENV;
 
 if (nodeEnv === 'local') {
   CONFIG = {

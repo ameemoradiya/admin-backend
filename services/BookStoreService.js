@@ -1,6 +1,6 @@
+'use strict';
 const _ = require('lodash');
 const async = require('async');
-const mongoose = require('mongoose');
 const debug = require('debug')('Demo:BookStoreService');
 const Boom = require('boom');
 const bookStoreModel = require('../models/bookstore');
@@ -21,7 +21,7 @@ exports.bookSet = function (req, res, next) {
                 });
                 tempFilter.push({
                     bname: {
-                        $regex: new RegExp("^" + params.bname + "$", "i")
+                        $regex: new RegExp('^' + params.bname + '$', 'i')
                     }
                 });
                 let filter = {
@@ -91,25 +91,25 @@ exports.getAll = function (req, res, next) {
         query.sort = {};
 
         if (params.sortColumn) { query.sort[sortCol] = sortType; }
-        if (params.showbypage) { searchQuery = { bpagenum: { $gt: params.showbypage }}}
+        if (params.showbypage) { searchQuery = { bpagenum: { $gt: params.showbypage }};}
         if (params.gpage && params.lpage) {
             searchQuery = {
-                bpagenum: { $gt: params.gpage, $lt: params.lpage }}
+                bpagenum: { $gt: params.gpage, $lt: params.lpage }};
         }
         if (params.gpage && params.lpage && params.notequal) {
             searchQuery = {
-                bpagenum: { $gt: params.gpage, $lt: params.lpage, $ne: params.notequal }}
+                bpagenum: { $gt: params.gpage, $lt: params.lpage, $ne: params.notequal }};
         }
-        if (params.showbyname) { searchQuery = { bname: params.showbyname }}
-        if (params.showbyid) { searchQuery = { bookId: params.showbyid }}
-        if (params.search) { searchQuery = { bname: { $regex: params.search }}}
-        if (params.showbyyear) {searchQuery = { breleasyear: params.showbyyear }}
-        if (params.bpagesize == 0) { searchQuery = { bpagenum: params.bpagesize }}
+        if (params.showbyname) { searchQuery = { bname: params.showbyname };}
+        if (params.showbyid) { searchQuery = { bookId: params.showbyid };}
+        if (params.search) { searchQuery = { bname: { $regex: params.search }};}
+        if (params.showbyyear) {searchQuery = { breleasyear: params.showbyyear };}
+        if (params.bpagesize === 0) { searchQuery = { bpagenum: params.bpagesize };}
         if (params.yr1 && params.yr15) { 
-            searchQuery = { breleasyear: { $in: [params.yr1, params.yr15] }}
+            searchQuery = { breleasyear: { $in: [params.yr1, params.yr15] }};
         }
         if (params.bLanguage) {
-            searchQuery = {bLanguage: { $ne:null }}
+            searchQuery = {bLanguage: { $ne:null }};
         }
 
         //Database query
@@ -170,7 +170,7 @@ exports.deleteBookById = function (req, res, next) {
         }
         let query = {
             bookId: params.bookId
-        }
+        };
         bookStoreModel.deleteBook({
             filter: query
         }, function (error, result) {
@@ -200,7 +200,7 @@ exports.deleteBookByName = function (req, res, next) {
 
         let query = {
             bname: params.bname
-        }
+        };
         bookStoreModel.deleteBook({
             filter: query
         }, function (error, result) {
@@ -229,7 +229,7 @@ exports.deleteBookByAuthor = function (req, res, next) {
         }
         let query = {
             bauthorname: params.bauthorname
-        }
+        };
         bookStoreModel.deleteBook({
             filter: query
         }, function (error, result) {
@@ -261,7 +261,7 @@ exports.deleteBookByAuthorDesc = function (req, res, next) {
         let query = {
             bauthorname: params.bauthorname,
             bdescription: params.bdescription
-        }
+        };
         bookStoreModel.deleteBook({
             filter: query
         }, function (error, result) {
@@ -293,7 +293,7 @@ exports.deleteBookByNameCategory = function (req, res, next) {
         let query = {
             bname: params.bname,
             bcategory: params.bcategory
-        }
+        };
         bookStoreModel.deleteBook({
             filter: query
         }, function (error, result) {
@@ -395,7 +395,6 @@ exports.updateBookByName = function (req, res, next) {
             bname: param.bname,
             bdescription: param.bdescription,
             bauthorname: param.bauthorname,
-            bauthorname: param.bauthorname,
             bpagenum: param.bpagenum,
             bcategory: param.bcategory,
             bprice: param.bprice,
@@ -453,7 +452,6 @@ exports.updateBookByNameAuth = function (req, res, next) {
             bname: param.bname,
             bdescription: param.bdescription,
             bauthorname: param.bauthorname,
-            bauthorname: param.bauthorname,
             bpagenum: param.bpagenum,
             bcategory: param.bcategory,
             bprice: param.bprice,
@@ -498,16 +496,16 @@ exports.getFilterByPricePages = function (req, res, next) {
     let bookStore;
     let responseData = {
         data: ''
-    }
+    };
     try {
         let aggregateFilter = [{
             $group: {
                 _id: null,
                 bprice: {
-                    $max: "$bprice"
+                    $max: '$bprice'
                 },
                 bpagenum: {
-                    $min: "$bpagenum"
+                    $min: '$bpagenum'
                 }
             }
         }];

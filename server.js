@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-
+'use strict';
 /**
  * Module dependencies.
  */
@@ -58,8 +58,7 @@ function onError(error) {
     throw error;
   }
 
-  let bind = typeof port === 'string'
-    ? 'Pipe ' + port
+  let bind = typeof port === 'string' ? 'Pipe ' + port
     : 'Port ' + port;
 
   // handle specific listen errors with friendly messages
@@ -83,8 +82,7 @@ function onError(error) {
 
 function onListening() {
   let addr = server.address();
-  let bind = typeof addr === 'string'
-    ? 'pipe ' + addr
+  let bind = typeof addr === 'string' ? 'pipe ' + addr
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
 }

@@ -1,13 +1,14 @@
+'use strict';
 const express = require('express');
 const path = require('path');
 const app = express();
-const favicon = require('serve-favicon');
 const logger = require('morgan');
 const session = require('express-session');
 const bodyParser = require('body-parser');
 const AppConfig = require('./lib/AppConfig');
 const index = require('./routes/index');
 const adminRoutes = require('./routes/admin/index');
+
 
 //Custom plugins, Don't remove it.
 require('./lib/utils/lodash');

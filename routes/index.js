@@ -1,7 +1,7 @@
+'use strict';
+
 const express = require('express');
 const router = express.Router();
-const tasks = require('../models/task');
-const bookstore = require('../models/bookstore');
 
 /* Set Route file */
 const task = require('../routes/TaskRoutes');
@@ -10,7 +10,7 @@ const UserRoutes = require('../routes/UserRoutes');
 
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
+router.get('/', function(req, res) {
   res.render('index', { title: 'Express' });
 });
 

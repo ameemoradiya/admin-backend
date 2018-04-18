@@ -1,4 +1,5 @@
 'use strict';
+
 let ROOT_PATH = process.cwd();
 
 exports.TABLES = {

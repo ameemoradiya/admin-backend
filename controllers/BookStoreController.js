@@ -1,8 +1,6 @@
 'use strict';
 
-const debug = require('debug')('Demo:BookStoreController');
 const Boom = require('boom');
-const _ = require('lodash');
 
 exports.BookData = function (req, res, next) {
   let bookStore = req.session.bookStore;

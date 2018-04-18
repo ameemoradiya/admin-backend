@@ -1,8 +1,8 @@
+'use strict';
+
 const mongoose = require('mongoose');
-const _ = require('lodash');
 const Schema = mongoose.Schema;
 const Boom = require('boom');
-
 const APP_CONSTANTS = require('../constants/AppConstants');
 
 const TaskSchema = new Schema({
@@ -12,7 +12,6 @@ const TaskSchema = new Schema({
 });
 
 const TasksModel = mongoose.model(APP_CONSTANTS.TABLES.TASK, TaskSchema);
-
 
 exports.findAllByFilter = function (data, callback) {
     if (!data) {

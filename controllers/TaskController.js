@@ -1,8 +1,6 @@
 'use strict';
 
-const debug = require('debug')('Demo:TaskController');
 const Boom = require('boom');
-const _ = require('lodash');
 
 exports.getAllTaskData = function (req, res, next) {
   let taskStore = req.session.taskStore;

@@ -1,4 +1,5 @@
 'use strict';
+
 const _ = require('lodash');
 const async = require('async');
 const mongoose = require('mongoose');
@@ -16,7 +17,7 @@ exports.findTaskByTaskname = function (req, res, next) {
 
     tempFilter.push({
       taskName: {
-        $regex: new RegExp("^" + params.taskName + "$", "i")
+        $regex: new RegExp('^' + params.taskName + '$', 'i')
       }
     });
     let filter = {
@@ -82,14 +83,7 @@ exports.getAll = function (req, res, next) {
     let skip = pageNo > 0 ? ((pageNo - 1) * size) : 0;
     query.sort = {};
     query.sort[sortCol] = sortType;
-
-    if (params.showbyid) {
-      searchQuery = {
-        book_id: {
-          $regex: params.showbyid
-        }
-      };
-    }
+    
     if (params.search) {
       searchQuery = {
         content: {
@@ -219,14 +213,15 @@ exports.updateTask = function (req, res, next) {
 exports.deleteTask = function (req, res, next) {
   try {
     let params = _.merge(req.params, req.body);
+    debug('params', params);
 
     if (!params) {
       return next(Boom.badRequest('Invalid task!'), null);
-    } else if (!params.task_id || !mongoose.Types.ObjectId.isValid(params.task_id)) {
+    } else if (!params.taskId || !mongoose.Types.ObjectId.isValid(params.taskId)) {
       return next(Boom.badRequest('Invalid id!'), null);
     }
     taskModel.deleteById({
-      id: params.task_id
+      id: params.taskId
     }, function (error, result) {
       if (error) {
         return next(error);
@@ -253,7 +248,7 @@ exports.validateCompleteTask = function (req, res, next) {
       return next(Boom.badRequest('Invalid task name!'), null);
     }
     let filter = {
-      _id: params.task_id
+      _id: params.taskId
     };
     taskModel.findOneByFilter({
       filter: filter
@@ -269,7 +264,8 @@ exports.validateCompleteTask = function (req, res, next) {
     debug('error :%o ', error);
     return next(error);
   }
-}
+};
+
 exports.taskComplete = function (req, res, next) {
   let params = req.body;
   try {

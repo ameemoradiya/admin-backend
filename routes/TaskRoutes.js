@@ -1,3 +1,5 @@
+'use strict';
+
 const express = require('express');
 const router = express.Router();
 const taskService = require('../services/TaskService');
@@ -19,7 +21,7 @@ router.post('/getAll', [passport], [
 ]);
 
 //# update task
-router.put('/Update/:task_id', [passport], [
+router.put('/Update/:taskId', [passport], [
     taskService.validateUpdateTask,
     taskService.updateTask,
     taskController.updateTaskData
@@ -27,13 +29,13 @@ router.put('/Update/:task_id', [passport], [
 ]);
 
 //# delete task
-router.delete('/Delete/:task_id', [passport], [
+router.delete('/Delete/:taskId', [passport], [
     taskService.deleteTask,
     taskController.deleteTaskData
 ]);
 
 //# update for complete task
-router.put('/Complete/:task_id', [passport], [
+router.put('/Complete/:taskId', [passport], [
     taskService.validateCompleteTask,
     taskService.taskComplete,
     taskController.updateTaskData

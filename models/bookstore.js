@@ -1,5 +1,6 @@
+'use strict';
+
 const mongoose = require('mongoose');
-const _ = require('lodash');
 const Schema = mongoose.Schema;
 const Boom = require('boom');
 

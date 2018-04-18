@@ -1,4 +1,5 @@
 'use strict';
+
 const _ = require('lodash');
 const async = require('async');
 const debug = require('debug')('Demo:BookStoreService');
@@ -532,10 +533,10 @@ exports.getFilterByPricePages = function (req, res, next) {
             getAllBook: function (callback) {
                 let data = bookStore;
                 let query = {
-                    "$or": [{
-                        "bprice": data.bprice
+                    '$or': [{
+                        'bprice': data.bprice
                     }, {
-                        "bpagenum": data.bpagenum
+                        'bpagenum': data.bpagenum
                     }]
                 };
 
@@ -564,4 +565,4 @@ exports.getFilterByPricePages = function (req, res, next) {
         debug('error :%o ', error);
         return next(error);
     }
-}
+};

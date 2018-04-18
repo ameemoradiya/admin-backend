@@ -1,3 +1,5 @@
+'use strict';
+
 const _ = require('lodash');
 const async = require('async');
 const mongoose = require('mongoose');
@@ -9,7 +11,6 @@ const juice = require('juice');
 const md5 = require('md5');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
-const path = require('path');
 const userModel = require('../models/user');
 const APP_CONSTANTS = require('../constants/AppConstants');
 const CONFIG_CONSTANTS = require('../constants/ConfigConstants');
@@ -65,7 +66,7 @@ exports.verifyRegistrationCaptcha = function (req, res, next) {
         debug('error %o', error.stack);
         return next(error);
     }
-}
+};
 
 exports.findUserByName = function (req, res, next) {
     debug('Inside findUserByName service.');
@@ -75,12 +76,12 @@ exports.findUserByName = function (req, res, next) {
         let tempFilter = [];
         tempFilter.push({
             username: {
-                $regex: new RegExp("^" + params.username + "$", "i")
+                $regex: new RegExp('^' + params.username + '$', 'i')
             }
         });
         tempFilter.push({
             email: {
-                $regex: new RegExp("^" + params.email + "$", "i")
+                $regex: new RegExp('^' + params.email + '$', 'i')
             }
         });
 
@@ -132,9 +133,8 @@ exports.register = function (req, res, next) {
     debug('Inside register service.');
     try {
         let params = _.merge(req.body, req.query);
-        let userStore = {};
         let newUser = params;
-        newUser.password_clear = params.password;
+        newUser.passwordClear = params.password;
         newUser.type = params.type || '1';
         newUser.status = params.status || false;
         newUser.fullname = params.username;
@@ -178,7 +178,7 @@ exports.sendEmailUserReg = function (req, res, next) {
             };
             compiledTemplate = compiledTemplate(emailData);
             let htmlData = juice(compiledTemplate);
-            nodemailer.createTestAccount((err, account) => {
+            nodemailer.createTestAccount(() => {
                 let transporter = nodemailer.createTransport({
                     service: 'gmail',
                     auth: {
@@ -241,11 +241,11 @@ exports.findUser = function (req, res, next) {
 
         if (params.username.indexOf('@') > 0) {
             filter.email = {
-                $regex: new RegExp("^" + params.username + "$", "i")
+                $regex: new RegExp('^' + params.username + '$', 'i')
             };
         } else {
             filter.username = {
-                $regex: new RegExp("^" + params.username + "$", "i")
+                $regex: new RegExp('^' + params.username + '$', 'i')
             };
         }
         userModel.findOneByFilter({
@@ -267,9 +267,8 @@ exports.findUser = function (req, res, next) {
 exports.logIn = function (req, res, next) {
     debug('Inside logIn service.');
     try {
-        let params = req.body;
         let userStore = req.session.userStore;
-        
+
         jwt.sign({
             u: userStore.username,
             t: userStore.type
@@ -322,7 +321,7 @@ exports.logIn = function (req, res, next) {
 exports.getCurrentUser = function (req, res, next) {
     debug('Inside getCurrentUser service.');
     try {
-        let userStore = req.body.decoded_user;
+        let userStore = req.body.decodedUser;
         if (!userStore) {
             return next(Boom.badRequest('User not found!'));
         }
@@ -381,7 +380,7 @@ exports.updateUser = function (req, res, next) {
 
         if (newPassword) {
             set.password = newPassword;
-            set.password_clear = params.newPassword;
+            set.passwordClear = params.newPassword;
         }
 
         let filter = {
@@ -429,7 +428,7 @@ exports.sendEmailProfileUpdate = function (req, res, next) {
             };
             compiledTemplate = compiledTemplate(emailData);
             let htmlData = juice(compiledTemplate);
-            nodemailer.createTestAccount((err, account) => {
+            nodemailer.createTestAccount(() => {
 
                 let transporter = nodemailer.createTransport({
                     service: 'gmail',
@@ -462,7 +461,7 @@ exports.sendEmailProfileUpdate = function (req, res, next) {
         debug('error %o', error.stack);
         return next(error);
     }
-}
+};
 
 exports.findOneUser = function (req, res, next) {
     debug('Inside findOneUser service.');
@@ -545,7 +544,7 @@ exports.resetUserPassword = function (req, res, next) {
 
         let updatedData = {
             $set: {
-                password_clear: newPassword,
+                passwordClear: newPassword,
                 password: md5(newPassword)
             }
         };
@@ -598,7 +597,7 @@ exports.sendEmailResetPass = function (req, res, next) {
             };
             compiledTemplate = compiledTemplate(emailData);
             let htmlData = juice(compiledTemplate);
-            nodemailer.createTestAccount((err, account) => {
+            nodemailer.createTestAccount(() => {
                 let transporter = nodemailer.createTransport({
                     service: 'gmail',
                     auth: {
@@ -659,13 +658,13 @@ exports.updateUserByadmn = function (req, res, next) {
             email: params.email,
             emailRetype: params.emailRetype,
             password: params.password,
-            password_clear: params.password_clear,
+            passwordClear: params.passwordClear,
             status: params.status
         };
 
         if (newPassword) {
             set.password = newPassword;
-            set.password_clear = params.newPassword;
+            set.passwordClear = params.newPassword;
         }
 
         let filter = {
@@ -718,7 +717,6 @@ exports.getAllForAffiliatesTable = function (req, res, next) {
         let query = {};
         let sortCol = params.sortColumn;
         let sortType = params.sortType;
-        let skip = pageNo > 0 ? ((pageNo - 1) * size) : 0;
         query.sort = {};
         query.sort[sortCol] = sortType;
 
@@ -735,19 +733,19 @@ exports.getAllForAffiliatesTable = function (req, res, next) {
                 let queryTemp = [];
                 queryTemp.push({
                     username: {
-                        $regex: ".*" + params.search + ".*",
+                        $regex: '.*' + params.search + '.*',
                         $options: '-i'
                     }
                 });
                 queryTemp.push({
                     fullname: {
-                        $regex: ".*" + params.search + ".*",
+                        $regex: '.*' + params.search + '.*',
                         $options: '-i'
                     }
                 });
                 queryTemp.push({
                     email: {
-                        $regex: ".*" + params.search + ".*",
+                        $regex: '.*' + params.search + '.*',
                         $options: '-i'
                     }
                 });
@@ -878,13 +876,13 @@ exports.addProfilePhoto = function (req, res, next) {
     try {
         let params = req.body;
         let newImage = params;
-        newImage.uploadImgBy = params.decoded_user.username;
+        newImage.uploadImgBy = params.decodedUser.username;
         newImage.uploadImgName = req.file.filename;
 
 
         if (!params) {
             return next(Boom.badRequest('Invalid user!'), null);
-        } else if (!params.decoded_user._id || !mongoose.Types.ObjectId.isValid(params.decoded_user._id)) {
+        } else if (!params.decodedUser._id || !mongoose.Types.ObjectId.isValid(params.decodedUser._id)) {
             return next(Boom.badRequest('Invalid id!'), null);
         }
 
@@ -893,7 +891,7 @@ exports.addProfilePhoto = function (req, res, next) {
         };
 
         let filter = {
-            _id: mongoose.Types.ObjectId(params.decoded_user._id),
+            _id: mongoose.Types.ObjectId(params.decodedUser._id),
             token: req.headers.authorization,
             type: '1'
         };
@@ -906,11 +904,12 @@ exports.addProfilePhoto = function (req, res, next) {
             new: true,
             runValidators: true
         };
+        let imageStore;
         async.series({
             addImage: function (callback) {
 
                 let newImage = params;
-                newImage.uploadImgBy = params.decoded_user.username;
+                newImage.uploadImgBy = params.decodedUser.username;
                 newImage.uploadImgName = req.file.filename;
 
                 userModel.findOneAndUpdateByFilter({
@@ -921,8 +920,7 @@ exports.addProfilePhoto = function (req, res, next) {
                     if (error) {
                         return callback(error);
                     }
-
-                    if (params.froala && params.froala == 'true') {
+                    if (params.froala && params.froala === 'true') {
                         imageStore = {
                             link: 'https://s3-eu-central-1.amazonaws.com/igamingcloudstr/images/' + req.file.filename
                         };

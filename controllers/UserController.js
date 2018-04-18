@@ -1,8 +1,6 @@
 'use strict';
 
-const debug = require('debug')('Demo:UserController');
 const Boom = require('boom');
-const _ = require('lodash');
 
 exports.registerData = function (req, res, next) {
     let userStore = req.session.userStore;

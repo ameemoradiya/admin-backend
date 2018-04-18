@@ -4,7 +4,6 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const validate = require('mongoose-validator');
 const md5 = require('md5');
-const _ = require('lodash');
 const Boom = require('boom');
 const APP_CONSTANTS = require('../constants/AppConstants');
 
@@ -67,7 +66,7 @@ let usersSchema = new Schema({
     password: {
         type: String
     },
-    password_clear: {
+    passwordClear: {
         type: String
     },
     moreInfo: {

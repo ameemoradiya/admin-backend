@@ -15,7 +15,7 @@ router.get('/', function(req, res) {
 });
 
 //# TaskRoutes Route
-router.use('/tasks', task);
+router.use('/task', task);
 
 //# BookRoutes Route
 router.use('/books', bstore);

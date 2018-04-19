@@ -1,4 +1,7 @@
 'use strict';
+
+require('firebase/auth');
+require('firebase/database');
 const express = require('express');
 const path = require('path');
 const app = express();
@@ -8,6 +11,7 @@ const bodyParser = require('body-parser');
 const AppConfig = require('./lib/AppConfig');
 const index = require('./routes/index');
 const adminRoutes = require('./routes/admin/index');
+const firebaseIndex = require('./routes/firebaseTask/index');
 
 
 //Custom plugins, Don't remove it.
@@ -48,8 +52,12 @@ app.use(function (request, response, next) {
 app.use(AppConfig.trimParams);
 
 app.use('/', index);
+
 //# UserRoutes Route
 app.use('/admin', adminRoutes);
+
+//# FirebaseRoutes Route
+app.use('/', firebaseIndex);
 
 // Error handling
 app.use(AppConfig.handleError);

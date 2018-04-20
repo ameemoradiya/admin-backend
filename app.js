@@ -1,7 +1,5 @@
 'use strict';
 
-require('firebase/auth');
-require('firebase/database');
 const express = require('express');
 const path = require('path');
 const app = express();

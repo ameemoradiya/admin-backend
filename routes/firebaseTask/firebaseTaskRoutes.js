@@ -31,5 +31,4 @@ router.put('/update/:key', [passport], [
     fbTaskController.updatefbTaskData
 ]);
 
-
 module.exports = router;

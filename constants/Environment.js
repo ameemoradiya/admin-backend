@@ -1,7 +1,7 @@
 'use strict';
 
 require('dotenv').load();
-//let debug = require('debug')('Javandi:Environment');
+// let debug = require('debug')('Javandi:Environment');
 
-//local
+// local
 exports.ENV = 'local';

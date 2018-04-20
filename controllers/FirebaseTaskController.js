@@ -16,7 +16,7 @@ exports.addedTaskData = function (req, res, next) {
   if (!taskStore) {
     return next(Boom.notFound('Failed to add task please try again!'));
   }
-  req.session.result = {message: 'Task added successfully!'};
+  req.session.result = taskStore;
   return next();
 };
 
@@ -25,7 +25,7 @@ exports.updatefbTaskData = function (req, res, next) {
   if (!taskDataStore) {
     return next(Boom.notFound('Failed to update task please try again!'));
   }
-  req.session.result = {success: true, text: 'Update successful!'};
+  req.session.result = taskDataStore;
   return next();
 };
 
@@ -34,6 +34,6 @@ exports.deletefbTaskData = function (req, res, next) {
   if (!taskDataStore) {
     return next(Boom.notFound('Failed to delete task please try again!'));
   }
-  req.session.result = {success: true, text: 'Delete successful!'};
+  req.session.result = taskDataStore;
   return next();
 };

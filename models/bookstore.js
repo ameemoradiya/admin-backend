@@ -147,5 +147,3 @@ exports.findAllByAggregate = function (data, callback) {
   });
 
 };
-
-// module.exports = BooksModel;

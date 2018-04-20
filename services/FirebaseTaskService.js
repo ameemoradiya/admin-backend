@@ -2,14 +2,8 @@
 
 const _ = require('lodash');
 const debug = require('debug')('Demo:FirebaseTaskService');
-const firebase = require('firebase');
 const Boom = require('boom');
-const APP_CONSTANTS = require('../constants/AppConstants');
-
-// Initialize Firebase for the application
-const fb = firebase.initializeApp(APP_CONSTANTS.FIREBASE_CONFIG);
-const db = fb.database();
-var ref = db.ref('tasks');
+const fbtaskModel = require('../models/firebasetask');
 
 //add task
 exports.getAll = function (req, res, next) {
@@ -18,18 +12,19 @@ exports.getAll = function (req, res, next) {
   try {
     let response = [];
     let resKey = [];
-    ref.on('child_added', function (snapshot) {
-      response.push(snapshot.val());
-      resKey.push({
-        key: snapshot.key
-      });
-      let merge = _.merge(response, resKey);
-      req.session.fbTaskStore = merge;
-      return next();
-    }, function (errorObject) {
-      return next(Boom.badRequest(errorObject.code));
-    });
 
+    fbtaskModel.findAll(function (error, result) {
+      if (error) {
+        return next(error);
+      }
+      response.push(result.val());
+      resKey.push({
+        key: result.key
+      });
+      result = _.merge(response, resKey);
+      req.session.fbTaskStore = result;
+      return next();
+    });
   } catch (error) {
     return next(error);
   }
@@ -45,17 +40,16 @@ exports.delete = function (req, res, next) {
     } else if (!params.key) {
       return next(Boom.badRequest('Invalid id!'), null);
     }
-    ref.child(req.params.key).remove(function(error){
-      if (error) {
-        return next(Boom.badRequest('Unable to delete task!'));
-      } else {
-        req.session.fbTaskStore = [{
-          deleteKey: req.params.key
-        }];
-        return next();
+    fbtaskModel.deleteById({
+      id: req.params.key
+    }, function (error, result) {
+      if (error || !result) {
+        return next(Boom.badRequest(error));
       }
+      req.session.fbTaskStore = result;
+      return next();
     });
-
+   
   } catch (error) {
     return next(error);
   }
@@ -75,13 +69,16 @@ exports.taskset = function (req, res, next) {
       set: _.compactObject(set)
     };
 
-    ref.push().set(addData.set).then((error) => {
-      if (error) {
-        return next(Boom.badRequest(error), null);
+    fbtaskModel.insert({
+      newTask: addData.set
+    }, function (error, result) {
+      if (error || !result) {
+        return next(Boom.badRequest('Could not add task please try again!'));
       }
+      req.session.fbTaskStore = result;
+      return next();
     });
-    req.session.fbTaskStore = [addData.set];
-    return next();
+
   } catch (error) {
     return next(error);
   }
@@ -100,18 +97,22 @@ exports.updateTask = function (req, res, next) {
     let set = {
       clientname: params.clientname,
       content: params.content,
-      done: params.done
+      done: params.done || false
     };
     let updatedData = {
       set: _.compactObject(set)
     };
-    ref.child(params.key).update(updatedData.set);
-
-    req.session.fbTaskStore = [{
-      updateTask: req.params.key
-    }];
-    return next();
-
+    
+    fbtaskModel.findOneAndUpdate({
+      id: req.params.key,
+      updatedData: updatedData.set
+    }, function (error, result) {
+      if (error || !result) {
+        return next(Boom.badRequest(error));
+      }
+      req.session.fbTaskStore = result;
+      return next();
+    });
   } catch (error) {
     return next(error);
   }

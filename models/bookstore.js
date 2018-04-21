@@ -7,15 +7,15 @@ const Boom = require('boom');
 const APP_CONSTANTS = require('../constants/AppConstants');
 
 const BookSchema = new Schema({
-  bookId: Number,
-  bname: String,
-  bdescription: String,
-  bauthorname: String,
-  bpagenum: Number,
-  bcategory: String,
-  bprice: Number,
-  breleasyear: Number,
-  bLanguage: String
+  'bookId': Number,
+  'bname': String,
+  'bdescription': String,
+  'bauthorname': String,
+  'bpagenum': Number,
+  'bcategory': String,
+  'bprice': Number,
+  'breleasyear': Number,
+  'bLanguage': String
 });
 
 const BooksModel = mongoose.model(APP_CONSTANTS.TABLES.BOOK, BookSchema);
@@ -39,11 +39,13 @@ exports.insert = function (data, callback) {
     return callback(Boom.notFound('Invalid task!'));
   }
   let newBook = data.newBook;
+
   if (!newBook) {
     return callback(Boom.badRequest('Invalid task detail'));
   }
 
   let book = new BooksModel(newBook);
+
   book.save(function (error, result) {
     return callback(error, result);
   });

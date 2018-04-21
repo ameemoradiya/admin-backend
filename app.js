@@ -1,5 +1,6 @@
 'use strict';
 
+const debug = require('debug')('Demo:App');
 const express = require('express');
 const path = require('path');
 const app = express();
@@ -12,12 +13,13 @@ const adminRoutes = require('./routes/admin/index');
 const firebaseIndex = require('./routes/firebaseTask/index');
 
 
-//Custom plugins, Don't remove it.
+// Custom plugins, Don't remove it.
 require('./lib/utils/lodash');
 
 const http = require('http');
+
 app.set(http);
-//DB connection
+// DB connection
 require('./lib/db/index');
 
 // view engine setup
@@ -25,15 +27,15 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 app.use(logger('dev'));
 
-//Handle request
+// Handle request
 app.use(session({
-  secret: 'test',
-  saveUninitialized: false,
-  resave: false
+  'secret': 'test',
+  'saveUninitialized': false,
+  'resave': false
 }));
 
 app.use(bodyParser.urlencoded({
-  extended: true
+  'extended': true
 }));
 app.use(bodyParser.json());
 
@@ -51,10 +53,10 @@ app.use(AppConfig.trimParams);
 
 app.use('/', index);
 
-//# UserRoutes Route
+// # UserRoutes Route
 app.use('/admin', adminRoutes);
 
-//# FirebaseRoutes Route
+// # FirebaseRoutes Route
 app.use('/', firebaseIndex);
 
 // Error handling
@@ -64,11 +66,11 @@ app.use(AppConfig.handleSuccess);
 // Handle response
 app.use(AppConfig.handle404);
 
-//Catch uncaught exceptions
+// Catch uncaught exceptions
 process.on('uncaughtException', function (error) {
   // handle the error safely
-  console.log('Inside uncaughtException');
-  console.log(error.stack);
+  debug('Inside uncaughtException');
+  debug(error.stack);
   return error;
 });
 module.exports = app;

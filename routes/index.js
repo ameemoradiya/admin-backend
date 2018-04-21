@@ -10,17 +10,17 @@ const UserRoutes = require('../routes/UserRoutes');
 
 
 /* GET home page. */
-router.get('/', function(req, res) {
-  res.render('index', { title: 'Express' });
+router.get('/', function (req, res) {
+  res.render('index', { 'title': 'Express' });
 });
 
-//# TaskRoutes Route
+// # TaskRoutes Route
 router.use('/task', task);
 
-//# BookRoutes Route
+// # BookRoutes Route
 router.use('/books', bstore);
 
-//# UserRoutes Route
+// # UserRoutes Route
 router.use('/user', UserRoutes);
 
 module.exports = router;

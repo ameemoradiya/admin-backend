@@ -5,13 +5,14 @@ const debug = require('debug')('Demo:FirebaseTaskService');
 const Boom = require('boom');
 const fbtaskModel = require('../models/firebasetask');
 
-//add task
+
+// add task
 exports.getAll = function (req, res, next) {
   debug('inside getAll firebasetaskservice');
-
   try {
     let response = [];
     let resKey = [];
+    let merge;
 
     fbtaskModel.findAll(function (error, result) {
       if (error) {
@@ -19,10 +20,11 @@ exports.getAll = function (req, res, next) {
       }
       response.push(result.val());
       resKey.push({
-        key: result.key
+       
+        'key': result.key
       });
-      result = _.merge(response, resKey);
-      req.session.fbTaskStore = result;
+      merge = _.merge(response, resKey);
+      req.session.fbTaskStore = merge;
       return next();
     });
   } catch (error) {
@@ -41,7 +43,7 @@ exports.delete = function (req, res, next) {
       return next(Boom.badRequest('Invalid id!'), null);
     }
     fbtaskModel.deleteById({
-      id: req.params.key
+      'id': req.params.key
     }, function (error, result) {
       if (error || !result) {
         return next(Boom.badRequest(error));
@@ -58,19 +60,20 @@ exports.delete = function (req, res, next) {
 exports.taskset = function (req, res, next) {
   debug('inside taskset firebasetaskservice');
   let params = req.body;
+
   try {
     let set = {
-      clientname: params.clientname,
-      content: params.content,
-      done: params.done
+      'clientname': params.clientname,
+      'content': params.content,
+      'done': params.done
     };
 
     let addData = {
-      set: _.compactObject(set)
+      'set': _.compactObject(set)
     };
 
     fbtaskModel.insert({
-      newTask: addData.set
+      'newTask': addData.set
     }, function (error, result) {
       if (error || !result) {
         return next(Boom.badRequest('Could not add task please try again!'));
@@ -78,7 +81,6 @@ exports.taskset = function (req, res, next) {
       req.session.fbTaskStore = result;
       return next();
     });
-
   } catch (error) {
     return next(error);
   }
@@ -87,6 +89,8 @@ exports.taskset = function (req, res, next) {
 exports.updateTask = function (req, res, next) {
   debug('inside updateTask firebasetaskservice');
   let params = _.merge(req.body, req.params);
+  let updatedData;
+  let set;
 
   try {
     if (!params) {
@@ -94,18 +98,17 @@ exports.updateTask = function (req, res, next) {
     } else if (!params.key) {
       return next(Boom.badRequest('Invalid id!'), null);
     }
-    let set = {
-      clientname: params.clientname,
-      content: params.content,
-      done: params.done || false
+    set = {
+      'clientname': params.clientname,
+      'content': params.content,
+      'done': params.done
     };
-    let updatedData = {
-      set: _.compactObject(set)
+    updatedData = {
+      'set': _.compactObject(set)
     };
-    
     fbtaskModel.findOneAndUpdate({
-      id: req.params.key,
-      updatedData: updatedData.set
+      'id': req.params.key,
+      'updatedData': updatedData.set
     }, function (error, result) {
       if (error || !result) {
         return next(Boom.badRequest(error));
@@ -113,6 +116,7 @@ exports.updateTask = function (req, res, next) {
       req.session.fbTaskStore = result;
       return next();
     });
+
   } catch (error) {
     return next(error);
   }

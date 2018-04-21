@@ -8,7 +8,7 @@ const Boom = require('boom');
 
 const taskModel = require('../models/task');
 
-//add task
+// add task
 exports.findTaskByTaskname = function (req, res, next) {
   debug('inside findTaskByTaskname');
   try {
@@ -16,15 +16,16 @@ exports.findTaskByTaskname = function (req, res, next) {
     let tempFilter = [];
 
     tempFilter.push({
-      taskName: {
-        $regex: new RegExp('^' + params.taskName + '$', 'i')
+      'taskName': {
+        '$regex': new RegExp(`^ ${params.taskName} $, i`)
       }
     });
     let filter = {
-      $or: tempFilter
+      '$or': tempFilter
     };
+
     taskModel.findOneByFilter({
-      filter: filter
+      'filter': filter
     }, function (error, result) {
 
       if (error) {
@@ -45,11 +46,12 @@ exports.taskSet = function (req, res, next) {
   try {
     let params = _.merge(req.body, req.query);
     let newTask = params;
+
     newTask.isComplete = params.isComplete;
     newTask.taskName = params.taskName;
     newTask.content = params.content;
     taskModel.insert({
-      newTask: newTask
+      'newTask': newTask
     }, function (error, result) {
       if (error || !result) {
         return next(Boom.badRequest('Could not add task please try again!'));
@@ -64,44 +66,44 @@ exports.taskSet = function (req, res, next) {
   }
 };
 
-//# getAllTasks
+// # getAllTasks
 exports.getAll = function (req, res, next) {
   let params = req.body;
   let responseData = {
-    recordsTotal: 0,
-    data: [],
-    success: true,
-    error: ''
+    'recordsTotal': 0,
+    'data': [],
+    'success': true,
+    'error': ''
   };
+
   try {
-    let pageNo = parseInt(params.pagenumber);
-    let size = parseInt(params.perpage);
+    let pageNo = parseInt(params.pagenumber, 10);
+    let size = parseInt(params.perpage, 10);
     let sortCol = params.sortColumn;
     let sortType = params.sortType;
     let query = {};
     let searchQuery = {};
     let skip = pageNo > 0 ? ((pageNo - 1) * size) : 0;
+
     query.sort = {};
     query.sort[sortCol] = sortType;
     
     if (params.search) {
       searchQuery = {
-        content: {
-          $regex: params.search
+        'content': {
+          '$regex': params.search
         }
       };
     }
 
-    //Database query
+    // Database query
     async.series({
-
-      getAllTask: function (innerCallback) {
-
+      'getAllTask': function (innerCallback) {
         taskModel.findAllByFilter({
-          filter: searchQuery,
-          limit: size,
-          skip: skip,
-          sort: query.sort
+          'filter': searchQuery,
+          'limit': size,
+          'skip': skip,
+          'sort': query.sort
         }, function (error, result) {
           if (error) {
             return innerCallback(error);
@@ -112,10 +114,9 @@ exports.getAll = function (req, res, next) {
 
       },
 
-      totalCount: function (innerCallback) {
-
+      'totalCount': function (innerCallback) {
         taskModel.countByFilter({
-          filter: searchQuery
+          'filter': searchQuery
         }, function (error, count) {
           if (error) {
             return innerCallback(error);
@@ -139,7 +140,7 @@ exports.getAll = function (req, res, next) {
   }
 };
 
-//# updateTask
+// # updateTask
 exports.validateUpdateTask = function (req, res, next) {
   let params = req.body;
 
@@ -152,10 +153,11 @@ exports.validateUpdateTask = function (req, res, next) {
       return next(Boom.badRequest('Invalid task name!'), null);
     }
     let filter = {
-      taskName: params.taskName
+      'taskName': params.taskName
     };
+
     taskModel.findOneByFilter({
-      filter: filter
+      'filter': filter
     }, function (error, result) {
       if (error) {
         return next(error);
@@ -181,20 +183,20 @@ exports.updateTask = function (req, res, next) {
     };
 
     let filter = {
-      _id: mongoose.Types.ObjectId(params.id)
+      '_id': mongoose.Types.ObjectId(params.id)
     };
     let updatedData = {
-      $set: set
+      '$set': set
     };
     let options = {
-      new: true,
-      runValidators: true
+      'new': true,
+      'runValidators': true
     };
 
     taskModel.findOneAndUpdateByFilter({
-      filter: filter,
-      updatedData: updatedData,
-      options: options
+      'filter': filter,
+      'updatedData': updatedData,
+      'options': options
     }, function (error, result) {
       if (error) {
         return next(error);
@@ -209,10 +211,11 @@ exports.updateTask = function (req, res, next) {
 
 };
 
-//# deleteTask
+// # deleteTask
 exports.deleteTask = function (req, res, next) {
   try {
     let params = _.merge(req.params, req.body);
+
     debug('params', params);
 
     if (!params) {
@@ -221,7 +224,7 @@ exports.deleteTask = function (req, res, next) {
       return next(Boom.badRequest('Invalid id!'), null);
     }
     taskModel.deleteById({
-      id: params.taskId
+      'id': params.taskId
     }, function (error, result) {
       if (error) {
         return next(error);
@@ -235,11 +238,11 @@ exports.deleteTask = function (req, res, next) {
 };
 
 
-//# taskComplete update Task
+// # taskComplete update Task
 exports.validateCompleteTask = function (req, res, next) {
   let params = req.body;
-  try {
 
+  try {
     if (!params) {
       return next(Boom.badRequest('Invalid Task!'), null);
     } else if (!params._id || !mongoose.Types.ObjectId.isValid(params._id)) {
@@ -248,10 +251,11 @@ exports.validateCompleteTask = function (req, res, next) {
       return next(Boom.badRequest('Invalid task name!'), null);
     }
     let filter = {
-      _id: params.taskId
+      '_id': params.taskId
     };
+
     taskModel.findOneByFilter({
-      filter: filter
+      'filter': filter
     }, function (error, result) {
       if (error) {
         return next(error);
@@ -268,26 +272,27 @@ exports.validateCompleteTask = function (req, res, next) {
 
 exports.taskComplete = function (req, res, next) {
   let params = req.body;
+
   try {
     let set = {
-      'isComplete': req.body.isComplete,
+      'isComplete': req.body.isComplete
     };
 
     let filter = {
-      _id: mongoose.Types.ObjectId(params._id)
+      '_id': mongoose.Types.ObjectId(params._id)
     };
     let updatedData = {
-      $set: set
+      '$set': set
     };
     let options = {
-      new: true,
-      runValidators: true
+      'new': true,
+      'runValidators': true
     };
 
     taskModel.findOneAndUpdateByFilter({
-      filter: filter,
-      updatedData: updatedData,
-      options: options
+      'filter': filter,
+      'updatedData': updatedData,
+      'options': options
     }, function (error, result) {
       if (error) {
         return next(error);

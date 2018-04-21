@@ -9,21 +9,22 @@ const APP_CONSTANTS = require('../constants/AppConstants');
 // Initialize Firebase for the application
 const fb = firebase.initializeApp(APP_CONSTANTS.FIREBASE_CONFIG);
 const db = fb.database();
-var ref = db.ref('tasks');
+const ref = db.ref('tasks');
 
-//add task
+// add task
 exports.getAll = function (req, res, next) {
   debug('inside getAll firebasetaskservice');
-
   try {
     let response = [];
     let resKey = [];
+    let merge;
+
     ref.on('child_added', function (snapshot) {
       response.push(snapshot.val());
       resKey.push({
-        key: snapshot.key
+        'key': snapshot.key
       });
-      let merge = _.merge(response, resKey);
+      merge = _.merge(response, resKey);
       req.session.fbTaskStore = merge;
       return next();
     }, function (errorObject) {
@@ -45,13 +46,13 @@ exports.delete = function (req, res, next) {
     } else if (!params.key) {
       return next(Boom.badRequest('Invalid id!'), null);
     }
-    ref.child(req.params.key).remove(function(error){
+    ref.child(req.params.key).remove(function (error) {
       if (error) {
         return next(Boom.badRequest('Unable to delete task!'));
       } else {
-        req.session.fbTaskStore = [{
-          deleteKey: req.params.key
-        }];
+        req.session.fbTaskStore = [ {
+          'deleteKey': req.params.key
+        } ];
         return next();
       }
     });
@@ -64,15 +65,16 @@ exports.delete = function (req, res, next) {
 exports.taskset = function (req, res, next) {
   debug('inside taskset firebasetaskservice');
   let params = req.body;
+
   try {
     let set = {
-      clientname: params.clientname,
-      content: params.content,
-      done: params.done
+      'clientname': params.clientname,
+      'content': params.content,
+      'done': params.done
     };
 
     let addData = {
-      set: _.compactObject(set)
+      'set': _.compactObject(set)
     };
 
     ref.push().set(addData.set).then((error) => {
@@ -80,7 +82,7 @@ exports.taskset = function (req, res, next) {
         return next(Boom.badRequest(error), null);
       }
     });
-    req.session.fbTaskStore = [addData.set];
+    req.session.fbTaskStore = [ addData.set ];
     return next();
   } catch (error) {
     return next(error);
@@ -90,6 +92,8 @@ exports.taskset = function (req, res, next) {
 exports.updateTask = function (req, res, next) {
   debug('inside updateTask firebasetaskservice');
   let params = _.merge(req.body, req.params);
+  let updatedData;
+  let set;
 
   try {
     if (!params) {
@@ -97,19 +101,19 @@ exports.updateTask = function (req, res, next) {
     } else if (!params.key) {
       return next(Boom.badRequest('Invalid id!'), null);
     }
-    let set = {
-      clientname: params.clientname,
-      content: params.content,
-      done: params.done
+    set = {
+      'clientname': params.clientname,
+      'content': params.content,
+      'done': params.done
     };
-    let updatedData = {
-      set: _.compactObject(set)
+    updatedData = {
+      'set': _.compactObject(set)
     };
     ref.child(params.key).update(updatedData.set);
 
-    req.session.fbTaskStore = [{
-      updateTask: req.params.key
-    }];
+    req.session.fbTaskStore = [ {
+      'updateTask': req.params.key
+    } ];
     return next();
 
   } catch (error) {

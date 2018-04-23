@@ -23,11 +23,11 @@ if (nodeEnv === 'local') {
     }
   };
   FIREBASE_CONFIG = {
-    apiKey: 'AIzaSyCYehaEwopAUrV4uu2U-dwyp_ySWjmwE1w',
-    authDomain: 'ang5firebase-5c128.firebaseapp.com',
-    databaseURL: 'https://ang5firebase-5c128.firebaseio.com',
-    storageBucket: 'ang5firebase-5c128.appspot.com',
-    messagingSenderId: '19801560327'
+    'apiKey': 'AIzaSyCYehaEwopAUrV4uu2U-dwyp_ySWjmwE1w',
+    'authDomain': 'ang5firebase-5c128.firebaseapp.com',
+    'databaseURL': 'https://ang5firebase-5c128.firebaseio.com',
+    'storageBucket': 'ang5firebase-5c128.appspot.com',
+    'messagingSenderId': '19801560327'
   };
 }
 exports.CONFIG = CONFIG;

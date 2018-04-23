@@ -119,4 +119,3 @@ exports.insert = function (data, callback) {
   });
 
 };
-  

@@ -34,3 +34,12 @@ exports.SEND_EMAIL = {
 };
 
 exports.STRING = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+
+exports.TEST_JOB = {
+  'Seconds': '00',
+  'Minutes': '59',
+  'Hours': '*',
+  'DayOfMonth': '*',
+  'Months': '*',
+  'DayOfWeek': '*'
+};

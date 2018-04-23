@@ -66,6 +66,11 @@ function onError (error) {
     throw error;
   }
 }
+const testScript = require('./jobs/cron/script');
+
+function init () {
+  debug(testScript);
+}
 
 /**
  * Event listener for HTTP server "listening" event.
@@ -81,7 +86,7 @@ function onListening () {
 /**
  * Listen on provided port, on all network interfaces.
  */
-
 server.listen(port);
+init();
 server.on('error', onError);
 server.on('listening', onListening);

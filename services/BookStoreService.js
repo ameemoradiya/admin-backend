@@ -1,76 +1,99 @@
 'use strict';
 
 const _ = require('lodash');
-const async = require('async');
 const debug = require('debug')('Demo:BookStoreService');
 const Boom = require('boom');
 const bookStoreModel = require('../models/bookstore');
 
+async function findBookByBookname (filter) {
+  return new Promise((resolve, reject) => {
+    bookStoreModel.findOneByFilter({
+      'filter': filter
+    }, function (error, result) {
+      if (error) {
+        reject(error);
+      }
+      if (result) {
+        reject(Boom.badRequest('Bookid or Bookname already inserted!'));
+      }
+      resolve();
+    });
+  });
+}
+
+async function addBook (newBook) {
+  return new Promise((resolve, reject) => {
+    bookStoreModel.insert({
+      'newBook': newBook
+    }, function (error, result) {
+      if (error || !result) {
+        reject(Boom.badRequest('Could not add book please try again!'));
+      }
+      resolve(result);
+    });
+  });
+}
 // add book
-exports.bookSet = function (req, res, next) {
+exports.bookSet = async function (req, res, next) {
   debug('Inside bookSet service.');
 
   try {
     let params = _.merge(req.body, req.query);
     let bookStore = {};
+    let tempFilter = [];
 
-    async.series({
-      'findBookByBookname': function (callback) {
-        let tempFilter = [];
-
-        tempFilter.push({
-          'bookId': params.bookId
-        });
-        tempFilter.push({
-          'bname': { '$regex': new RegExp(`^' ${params.bname} $, i`) }
-        });
-        let filter = {
-          '$or': tempFilter
-        };
-        
-        bookStoreModel.findOneByFilter({
-          'filter': filter
-        }, function (error, result) {
-          if (error) {
-            return callback(error);
-          }
-          if (result) {
-            return callback(Boom.badRequest('Bookid or Bookname already inserted!'));
-          }
-          return callback();
-        });
-      },
-      'addBook': function (callback) {
-        let newBook = params;
-        
-        newBook.bookId = params.bookId;
-        newBook.bname = params.bname;
-        newBook.bdescription = params.bdescription;
-        newBook.bpagenum = params.bpagenum;
-        bookStoreModel.insert({
-          'newBook': newBook
-        }, function (error, result) {
-          if (error || !result) {
-            return callback(Boom.badRequest('Could not add book please try again!'));
-          }
-          bookStore = result;
-          return callback();
-        });
-      }
-    }, function (error) {
-      if (error) {
-        return next(error);
-      }
-      req.session.bookStore = bookStore;
-      return next();
+    tempFilter.push({
+      'bookId': params.bookId
     });
+    tempFilter.push({
+      'bname': {
+        '$regex': new RegExp(`^' ${params.bname} $, i`)
+      }
+    });
+    let filter = {
+      '$or': tempFilter
+    };
+
+    await findBookByBookname(filter);
+
+    let newBook = params;
+
+    newBook.bookId = params.bookId;
+    newBook.bname = params.bname;
+    newBook.bdescription = params.bdescription;
+    newBook.bpagenum = params.bpagenum;
+    bookStore = await addBook(newBook);
+    req.session.bookStore = bookStore;
+    return next();
   } catch (error) {
     return next(error);
   }
 };
 
 // # getAllTasks
-exports.getAll = function (req, res, next) {
+async function getAllBook (data) {
+  return new Promise((resolve, reject) => {
+    bookStoreModel.findAllByFilter(data, function (error, result) {
+      if (error) {
+        reject(error);
+      }
+      resolve(result);
+    });
+  });
+}
+async function totalCount (searchQuery) {
+  return new Promise((resolve, reject) => {
+    bookStoreModel.countByFilter({
+      'filter': searchQuery
+    }, function (error, count) {
+      if (error) {
+        reject(error);
+      }
+      resolve(count);
+    });
+  });
+}
+exports.getAll = async function (req, res, next) {
   debug('Inside getAll service.');
 
   let params = req.body;
@@ -80,7 +103,7 @@ exports.getAll = function (req, res, next) {
     'success': true,
     'error': ''
   };
-  
+
   try {
     let pageNo = parseInt(params.pagenumber, 10);
     let size = parseInt(params.perpage, 10);
@@ -95,73 +118,80 @@ exports.getAll = function (req, res, next) {
     }
     if (params.showbypage) {
       searchQuery = {
-        'bpagenum': { '$gt': params.showbypage } };
+        'bpagenum': {
+          '$gt': params.showbypage
+        }
+      };
     }
     if (params.gpage && params.lpage) {
       searchQuery = {
-        'bpagenum': { '$gt': params.gpage, '$lt': params.lpage } };
+        'bpagenum': {
+          '$gt': params.gpage,
+          '$lt': params.lpage
+        }
+      };
     }
     if (params.gpage && params.lpage && params.notequal) {
       searchQuery = {
-        'bpagenum': { '$gt': params.gpage, '$lt': params.lpage, '$ne': params.notequal } };
+        'bpagenum': {
+          '$gt': params.gpage,
+          '$lt': params.lpage,
+          '$ne': params.notequal
+        }
+      };
     }
     if (params.showbyname) {
-      searchQuery = { 'bname': params.showbyname };
+      searchQuery = {
+        'bname': params.showbyname
+      };
     }
     if (params.showbyid) {
-      searchQuery = { 'bookId': params.showbyid };
+      searchQuery = {
+        'bookId': params.showbyid
+      };
     }
     if (params.search) {
-      searchQuery = { 'bname': { '$regex': params.search } };
+      searchQuery = {
+        'bname': {
+          '$regex': params.search
+        }
+      };
     }
     if (params.showbyyear) {
-      searchQuery = { 'breleasyear': params.showbyyear };
+      searchQuery = {
+        'breleasyear': params.showbyyear
+      };
     }
     if (params.bpagesize === 0) {
-      searchQuery = { 'bpagenum': params.bpagesize };
+      searchQuery = {
+        'bpagenum': params.bpagesize
+      };
     }
     if (params.yr1 && params.yr15) {
-      searchQuery = { 'breleasyear': { '$in': [ params.yr1, params.yr15 ] } };
+      searchQuery = {
+        'breleasyear': {
+          '$in': [ params.yr1, params.yr15 ]
+        }
+      };
     }
     if (params.bLanguage) {
-      searchQuery = { 'bLanguage': { '$ne': null } };
+      searchQuery = {
+        'bLanguage': {
+          '$ne': null
+        }
+      };
     }
-    
-    // Database query
-    async.series({
-      'getAllBook': function (innerCallback) {
-        bookStoreModel.findAllByFilter({
-          'filter': searchQuery,
-          'limit': size || null,
-          'skip': pageNo > 0 ? ((pageNo - 1) * size) : 0 || null,
-          'sort': query.sort || null
-        }, function (error, result) {
-          if (error) {
-            return innerCallback(error);
-          }
-          responseData.data = result;
-          return innerCallback();
-        });
-      },
-      'totalCount': function (innerCallback) {
-        bookStoreModel.countByFilter({
-          'filter': searchQuery
-        }, function (error, count) {
-          if (error) {
-            return innerCallback(error);
-          }
-          responseData.recordsTotal = count;
-          return innerCallback();
-        });
-      }
-    }, function (error) {
-      if (error) {
-        debug('error :%o ', error);
-        return next(error);
-      }
-      req.session.bookStore = responseData;
-      return next();
-    });
+    let data = {
+      'filter': searchQuery,
+      'limit': size || null,
+      'skip': pageNo > 0 ? ((pageNo - 1) * size) : 0 || null,
+      'sort': query.sort || null
+    };
+
+    responseData.data = await getAllBook(data);
+    responseData.recordsTotal = await totalCount(searchQuery);
+    req.session.bookStore = responseData;
+    return next();
   } catch (error) {
     debug('error :%o ', error);
     return next(error);
@@ -214,7 +244,7 @@ exports.deleteBookByName = function (req, res, next) {
     let query = {
       'bname': params.bname
     };
-    
+
     bookStoreModel.deleteBook({
       'filter': query
     }, function (error, result) {
@@ -277,7 +307,7 @@ exports.deleteBookByAuthorDesc = function (req, res, next) {
       'bauthorname': params.bauthorname,
       'bdescription': params.bdescription
     };
-    
+
     bookStoreModel.deleteBook({
       'filter': query
     }, function (error, result) {
@@ -310,7 +340,7 @@ exports.deleteBookByNameCategory = function (req, res, next) {
       'bname': params.bname,
       'bcategory': params.bcategory
     };
-    
+
     bookStoreModel.deleteBook({
       'filter': query
     }, function (error, result) {
@@ -326,68 +356,70 @@ exports.deleteBookByNameCategory = function (req, res, next) {
 };
 
 // # updateBook by Id
-exports.updateBookById = function (req, res, next) {
+async function validateUpdateBook (filter) {
+  return new Promise((resolve, reject) => {
+    bookStoreModel.findOneByFilter({
+      'filter': filter
+    }, function (error, result) {
+      if (error) {
+        reject(error);
+      } else if (result) {
+        reject(Boom.conflict('New book you are try to update is already exist!'));
+      }
+      resolve();
+    });
+  });
+}
+async function updateTaskById (data) {
+  return new Promise((resolve, reject) => {
+    bookStoreModel.findOneAndUpdateByFilter(data,
+      function (error, result) {
+        if (error) {
+          reject(error);
+        }
+        resolve(result);
+      });
+  });
+}
+exports.updateBookById = async function (req, res, next) {
   debug('Inside updateBookById service.');
   let param = req.body;
   let updatedBook = {};
 
   try {
-    async.series({
-      'validateUpdateBook': function (callback) {
-        if (!param) {
-          return callback(Boom.badRequest('Invalid Book!'), null);
-        } else if (!param.bookId) {
-          return callback(Boom.badRequest('Invalid id!'), null);
-        } else if (!param.bname) {
-          return callback(Boom.badRequest('Invalid book name!'), null);
-        }
-        let filter = {
-          'bname': param.bname
-        };
-        
-        bookStoreModel.findOneByFilter({
-          'filter': filter
-        }, function (error, result) {
-          if (error) {
-            return callback(error);
-          } else if (result) {
-            return callback(Boom.conflict('New book you are try to update is already exist!'));
-          }
-          return callback();
-        });
-      },
-      'updateTaskById': function (callback) {
-        let params = param;
-        let filter = {
-          'bookId': param.bookId
-        };
-        let updatedData = {
-          '$set': params
-        };
-        let options = {
-          'new': true,
-          'runValidators': true
-        };
-        
-        bookStoreModel.findOneAndUpdateByFilter({
-          'filter': filter,
-          'updatedData': updatedData,
-          'options': options
-        }, function (error, result) {
-          if (error) {
-            return callback(error);
-          }
-          updatedBook = result;
-          return callback();
-        });
-      }
-    }, function (error) {
-      if (error) {
-        return next(error);
-      }
-      req.session.bookStore = updatedBook;
-      return next();
-    });
+    if (!param) {
+      return next(Boom.badRequest('Invalid Book!'), null);
+    } else if (!param.bookId) {
+      return next(Boom.badRequest('Invalid id!'), null);
+    } else if (!param.bname) {
+      return next(Boom.badRequest('Invalid book name!'), null);
+    }
+    let filter = {
+      'bname': param.bname
+    };
+
+    await validateUpdateBook(filter);
+
+    let params = param;
+    let filters = {
+      'bookId': param.bookId
+    };
+    let updatedData = {
+      '$set': params
+    };
+    let options = {
+      'new': true,
+      'runValidators': true
+    };
+    let data = {
+      'filter': filters,
+      'updatedData': updatedData,
+      'options': options
+    };
+
+    updatedBook = await updateTaskById(data);
+    req.session.bookStore = updatedBook;
+    return next();
   } catch (error) {
     debug('error :%o ', error);
     return next(error);
@@ -416,9 +448,9 @@ exports.updateBookByName = function (req, res, next) {
       'breleasyear': param.breleasyear,
       'bLanguage': param.bLanguage
     };
-    
+
     set = _.compactObject(set);
-    let filter = {
+    let filters = {
       'bname': param.bname
     };
     let updatedData = {
@@ -428,9 +460,9 @@ exports.updateBookByName = function (req, res, next) {
       'new': true,
       'runValidators': true
     };
-    
+
     bookStoreModel.findOneAndUpdateByFilter({
-      'filter': filter,
+      'filter': filters,
       'updatedData': updatedData,
       'options': options
     }, function (error, result) {
@@ -469,9 +501,9 @@ exports.updateBookByNameAuth = function (req, res, next) {
       'breleasyear': param.breleasyear,
       'bLanguage': param.bLanguage
     };
-    
+
     set = _.compactObject(set);
-    let filter = {
+    let filters = {
       'bname': param.bname,
       'bauthorname': param.bauthorname
     };
@@ -482,9 +514,9 @@ exports.updateBookByNameAuth = function (req, res, next) {
       'new': true,
       'runValidators': true
     };
-    
+
     bookStoreModel.findOneAndUpdateByFilter({
-      'filter': filter,
+      'filter': filters,
       'updatedData': updatedData,
       'options': options
     }, function (error, result) {
@@ -501,7 +533,30 @@ exports.updateBookByNameAuth = function (req, res, next) {
 };
 
 // # get by Filter with Price & Pages
-exports.getFilterByPricePages = function (req, res, next) {
+async function filterData (data) {
+  return new Promise((resolve, reject) => {
+    bookStoreModel.findAllByAggregate(data, function (error, result) {
+      if (error) {
+        reject(error);
+      }
+      resolve(result);
+    });
+  });
+}
+async function getallBook (query) {
+  return new Promise((resolve, reject) => {
+    bookStoreModel.findAllByFilter({
+      'filter': query
+    }, function (error, result) {
+      if (error) {
+        reject(error);
+      }
+      resolve(result);
+    });
+  });
+}
+
+exports.getFilterByPricePages = async function (req, res, next) {
   debug('Inside getFilterByPricePages service.');
   let bookStore;
   let responseData = {
@@ -526,47 +581,25 @@ exports.getFilterByPricePages = function (req, res, next) {
         'batchSize': 1500000
       }
     };
-    
-    async.series({
-      'filterData': function (callback) {
-        bookStoreModel.findAllByAggregate({
-          'aggregateFilter': aggregateFilter,
-          'options': options
-        }, function (error, result) {
-          if (error) {
-            return callback(error);
-          }
-          bookStore = result;
-          return callback();
-        });
-      },
-      'getAllBook': function (callback) {
-        let data = bookStore;
-        let query = {
-          '$or': [ {
-            'bprice': data.bprice
-          }, {
-            'bpagenum': data.bpagenum
-          } ]
-        };
-        
-        bookStoreModel.findAllByFilter({
-          'filter': query
-        }, function (error, result) {
-          if (error) {
-            return callback(error);
-          }
-          responseData.data = result;
-          return callback();
-        });
-      }
-    }, function (error) {
-      if (error) {
-        return next(error);
-      }
-      req.session.bookStore = responseData.data;
-      return next();
-    });
+    let data = {
+      'aggregateFilter': aggregateFilter,
+      'options': options
+    };
+
+    bookStore = await filterData(data);
+
+    let book = bookStore;
+    let query = {
+      '$or': [ {
+        'bprice': book.bprice
+      }, {
+        'bpagenum': book.bpagenum
+      } ]
+    };
+
+    responseData.data = await getallBook(query);
+    req.session.bookStore = responseData.data;
+    return next();
   } catch (error) {
     debug('error :%o ', error);
     return next(error);

@@ -1,7 +1,6 @@
 'use strict';
 
 const _ = require('lodash');
-const async = require('async');
 const mongoose = require('mongoose');
 const request = require('request');
 const debug = require('debug')('Demo:UserService');
@@ -55,7 +54,7 @@ exports.verifyRegistrationCaptcha = function (req, res, next) {
         return next(error);
       }
       let captchaResult = JSON.parse(response.body);
-      
+
       if (captchaResult.success !== true) {
         return next(Boom.badRequest('Please resolve the captcha before submit!'));
       } else {
@@ -73,7 +72,7 @@ exports.findUserByName = function (req, res, next) {
   try {
     let params = _.merge(req.body, req.query);
     let tempFilter = [];
-    
+
     tempFilter.push({
       'username': {
         '$regex': new RegExp(`^ ${params.username} $, i`)
@@ -87,7 +86,7 @@ exports.findUserByName = function (req, res, next) {
     let filter = {
       '$or': tempFilter
     };
-    
+
     userModel.findOneByFilter({
       'filter': filter
     }, function (error, result) {
@@ -109,7 +108,7 @@ exports.generateTokenForUser = function (req, res, next) {
   debug('Inside generateTokenForUser service.');
   try {
     let params = _.merge(req.body, req.query);
-    
+
     jwt.sign({
       'u': params.username,
       't': params.type || '1'
@@ -117,7 +116,7 @@ exports.generateTokenForUser = function (req, res, next) {
       'algorithm': APP_CONSTANTS.JWT.ALGORITHMS,
       'noTimestamp': true
     }, function (err, token) {
-      if(err) {
+      if (err) {
         return next(err);
       }
       params.token = token;
@@ -140,13 +139,13 @@ exports.register = function (req, res, next) {
     newUser.status = params.status || false;
     newUser.fullname = params.username;
     newUser.uploadImgName = params.uploadImgName || '';
-    
+
     userModel.insert({
       'newUser': newUser
     }, function (error, result) {
       if (error || !result) {
         let validationErrors = '';
-        
+
         Object.keys(error.errors).forEach(function (key) {
           validationErrors += `${error.errors[key].message} <br />`;
         });
@@ -177,10 +176,10 @@ exports.sendEmailUserReg = function (req, res, next) {
         'username': params.username,
         'password': params.password
       };
-      
+
       compiledTemplate = compiledTemplate(emailData);
       let htmlData = juice(compiledTemplate);
-      
+
       nodemailer.createTestAccount(() => {
         let transporter = nodemailer.createTransport({
           'service': 'gmail',
@@ -195,7 +194,7 @@ exports.sendEmailUserReg = function (req, res, next) {
           'subject': 'User Registered',
           'html': htmlData
         };
-        
+
         transporter.sendMail(mailOptions, (err, info) => {
           if (err) {
             return next(err);
@@ -215,7 +214,7 @@ exports.validateLogIn = function (req, res, next) {
   debug('Inside validateLogIn service.');
   try {
     let params = req.body;
-    
+
     if (!params) {
       return next(Boom.badRequest('Invalid data!'), null);
     } else if (!params.username) {
@@ -240,7 +239,7 @@ exports.findUser = function (req, res, next) {
       'type': 1,
       'status': true
     };
-    
+
     if (params.username.indexOf('@') > 0) {
       filter.email = {
         '$regex': new RegExp(`${params.username}`)
@@ -269,7 +268,7 @@ exports.logIn = function (req, res, next) {
   debug('Inside logIn service.');
   try {
     let userStore = req.session.userStore;
-    
+
     jwt.sign({
       'u': userStore.username,
       't': userStore.type
@@ -298,7 +297,7 @@ exports.logIn = function (req, res, next) {
       'new': true,
       'runValidators': true
     };
-    
+
     userModel.findOneAndUpdateByFilter({
       'filter': filter,
       'updatedData': updatedData,
@@ -320,7 +319,7 @@ exports.getCurrentUser = function (req, res, next) {
   debug('Inside getCurrentUser service.');
   try {
     let userStore = req.body.decodedUser;
-    
+
     if (!userStore) {
       return next(Boom.badRequest('User not found!'));
     }
@@ -349,19 +348,19 @@ exports.updateUser = function (req, res, next) {
   debug('Inside updateUser service.');
   try {
     let params = req.body;
-    
+
     if (!params) {
       return next(Boom.badRequest('Invalid user!'), null);
     } else if (!params._id || !mongoose.Types.ObjectId.isValid(params._id)) {
       return next(Boom.badRequest('Invalid id!'), null);
     }
     let regExp = /^[A-Za-z0-9]{32}$/;
-    
+
     if (params.newPassword && !params.newPassword.match(regExp) && (params.newPassword.length < 8 || params.newPassword.length > 20)) {
       return next(Boom.badRequest('The Password should be between 8 and 20 characters!'), null);
     }
     let newPassword = '';
-    
+
     if (params.newPassword) {
       newPassword = md5(params.newPassword);
     }
@@ -376,7 +375,7 @@ exports.updateUser = function (req, res, next) {
       'city': params.city,
       'zip': params.zip
     };
-    
+
     if (newPassword) {
       set.password = newPassword;
       set.passwordClear = params.newPassword;
@@ -393,7 +392,7 @@ exports.updateUser = function (req, res, next) {
       'new': true,
       'runValidators': true
     };
-    
+
     userModel.findOneAndUpdateByFilter({
       'filter': filter,
       'updatedData': updatedData,
@@ -423,10 +422,10 @@ exports.sendEmailProfileUpdate = function (req, res, next) {
       let emailData = {
         'username': params.username
       };
-      
+
       compiledTemplate = compiledTemplate(emailData);
       let htmlData = juice(compiledTemplate);
-      
+
       nodemailer.createTestAccount(() => {
         let transporter = nodemailer.createTransport({
           'service': 'gmail',
@@ -442,7 +441,7 @@ exports.sendEmailProfileUpdate = function (req, res, next) {
           'subject': 'Profile Change',
           'html': htmlData
         };
-        
+
         // send mail with defined transport object
         transporter.sendMail(mailOptions, (err, info) => {
           if (err) {
@@ -463,20 +462,20 @@ exports.sendEmailProfileUpdate = function (req, res, next) {
 exports.findOneUser = function (req, res, next) {
   debug('Inside findOneUser service.');
   let params = req.body;
-  
+
   try {
     if (!params) {
       return next(Boom.badRequest('Invalid user!'), null);
     } else if (!params.id || !mongoose.Types.ObjectId.isValid(params.id)) {
       return next(Boom.badRequest('Invalid id!'), null);
     }
-    
+
     let filter = {
       '_id': mongoose.Types.ObjectId(params.id),
       'token': req.headers.authorization,
       'type': '1'
     };
-    
+
     userModel.findOneByFilter({
       'filter': filter
     }, function (error, result) {
@@ -498,14 +497,14 @@ exports.findUserByEmail = function (req, res, next) {
   debug('Inside findUserByEmail service.');
   try {
     let params = req.body;
-    
+
     if (!params.usermail) {
       return next(Boom.badRequest('Invalid email!'));
     }
     let filter = {
       'email': params.usermail
     };
-    
+
     userModel.findOneByFilter({
       'filter': filter
     }, function (error, result) {
@@ -525,7 +524,7 @@ exports.resetUserPassword = function (req, res, next) {
   try {
     let params = req.body;
     let userStore = req.session.userStore;
-    
+
     if (!userStore) {
       return next(Boom.badRequest('Invalid email!'));
     }
@@ -546,7 +545,7 @@ exports.resetUserPassword = function (req, res, next) {
       'new': true,
       'runValidators': true
     };
-    
+
     userModel.findOneAndUpdateByFilter({
       'filter': filter,
       'updatedData': updatedData,
@@ -567,12 +566,12 @@ exports.sendEmailResetPass = function (req, res, next) {
   debug('Inside sendEmail service.');
   try {
     let params = req.body;
-    
+
     if (!params.usermail) {
       return next(Boom.badRequest('Invalid email!'));
     }
     let userStore = req.session.userStore;
-    
+
     if (!userStore) {
       return next(Boom.badRequest('Invalid email!'));
     }
@@ -586,10 +585,10 @@ exports.sendEmailResetPass = function (req, res, next) {
         'newPassword': newPassword,
         'logoUrl': `${CONFIG_CONSTANTS.CONFIG.uiUrl}/test-img.png`
       };
-      
+
       compiledTemplate = compiledTemplate(emailData);
       let htmlData = juice(compiledTemplate);
-      
+
       nodemailer.createTestAccount(() => {
         let transporter = nodemailer.createTransport({
           'service': 'gmail',
@@ -604,7 +603,7 @@ exports.sendEmailResetPass = function (req, res, next) {
           'subject': 'Your password has been changed',
           'html': htmlData
         };
-        
+
         transporter.sendMail(mailOptions, function (err, info) {
           if (err) {
             return next(err);
@@ -630,7 +629,7 @@ exports.updateUserByadmn = function (req, res, next) {
       return next(Boom.badRequest('Invalid id!'), null);
     }
     let regExp = /^[A-Za-z0-9]{32}$/;
-    
+
     if (params.newPassword && !params.newPassword.match(regExp) && (params.newPassword.length < 8 || params.newPassword.length > 20)) {
       return next(Boom.badRequest('The Password should be between 8 and 20 characters!'), null);
     }
@@ -653,7 +652,7 @@ exports.updateUserByadmn = function (req, res, next) {
       'passwordClear': params.passwordClear,
       'status': params.status
     };
-    
+
     if (newPassword) {
       set.password = newPassword;
       set.passwordClear = params.newPassword;
@@ -668,7 +667,7 @@ exports.updateUserByadmn = function (req, res, next) {
       'new': true,
       'runValidators': true
     };
-    
+
     userModel.findOneAndUpdateByFilter({
       'filter': filter,
       'updatedData': updatedData,
@@ -685,14 +684,53 @@ exports.updateUserByadmn = function (req, res, next) {
   }
 };
 
-exports.getAllForAffiliatesTable = function (req, res, next) {
+async function findUsers (data) {
+  return new Promise((resolve, reject) => {
+    userModel.findAllByFilter(data, function (error, result) {
+      if (error) {
+        reject(error);
+      }
+      result.forEach(function (item, index, object) {
+        if (item.username === 'admin') {
+          object.splice(index, 1);
+        }
+      });
+      resolve(result);
+    });
+  });
+}
+async function filterRecordCount (query) {
+  return new Promise((resolve, reject) => {
+    userModel.countByFilter({
+      'filter': query
+    }, function (error, count) {
+      if (error) {
+        reject(error);
+      }
+      resolve(count - 1);
+    });
+  });
+}
+async function totalRecordCount (filter) {
+  return new Promise((resolve, reject) => {
+    userModel.countByFilter({
+      'filter': filter
+    }, function (error, count) {
+      if (error) {
+        reject(error);
+      }
+      resolve(count - 1);
+    });
+  });
+}
+exports.getAllForAffiliatesTable = async function (req, res, next) {
   debug('Inside getAllForAffiliatesTable service.');
   let responseData = {
     'recordsTotal': 0,
     'recordsFiltered': 0,
     'data': []
   };
-  
+
   try {
     let params = req.body;
     let searchQuery = {
@@ -707,7 +745,7 @@ exports.getAllForAffiliatesTable = function (req, res, next) {
     let query = {};
     let sortCol = params.sortColumn;
     let sortType = params.sortType;
-    
+
     query.sort = {};
     query.sort[sortCol] = sortType;
     if (params) {
@@ -719,7 +757,7 @@ exports.getAllForAffiliatesTable = function (req, res, next) {
       }
       if (params.search) {
         let queryTemp = [];
-        
+
         queryTemp.push({
           'username': {
             '$regex': `${params.search}`,
@@ -747,66 +785,26 @@ exports.getAllForAffiliatesTable = function (req, res, next) {
         searchQuery.$or = queryTemp;
       }
     }
-    // Database query
-    async.series({
-      'findUsers': function (innerCallback) {
-        let select = {
-          'password': 0,
-          'passwordRetype': 0
-        };
-        
-        userModel.findAllByFilter({
-          'filter': searchQuery,
-          'limit': queryFilter.limit,
-          'skip': queryFilter.offset,
-          'sort': query.sort,
-          'select': select
-        }, function (error, result) {
-          if (error) {
-            return innerCallback(error);
-          }
-          result.forEach(function (item, index, object) {
-            if (item.username === 'admin') {
-              object.splice(index, 1);
-            }
-          });
-          responseData.data = result;
-          return innerCallback();
-        });
-      },
-      'filterRecordCount': function (innerCallback) {
-        userModel.countByFilter({
-          'filter': query
-        }, function (error, count) {
-          if (error) {
-            return innerCallback(error);
-          }
-          responseData.recordsFiltered = count - 1;
-          return innerCallback();
-        });
-      },
-      'totalRecordCount': function (innerCallback) {
-        let filter = {
-          'type': '1'
-        };
-        
-        userModel.countByFilter({
-          'filter': filter
-        }, function (error, count) {
-          if (error) {
-            return innerCallback(error);
-          }
-          responseData.recordsTotal = count - 1;
-          return innerCallback();
-        });
-      }
-    }, function (error) {
-      if (error) {
-        return next(error);
-      }
-      req.session.userStore = responseData;
-      return next();
-    });
+    let select = {
+      'password': 0,
+      'passwordRetype': 0
+    };
+    let data = {
+      'filter': searchQuery,
+      'limit': queryFilter.limit,
+      'skip': queryFilter.offset,
+      'sort': query.sort,
+      'select': select
+    };
+    let filter = {
+      'type': '1'
+    };
+
+    responseData.data = await findUsers(data);
+    responseData.recordsFiltered = await filterRecordCount(query);
+    responseData.recordsTotal = await totalRecordCount(filter);
+    req.session.userStore = responseData;
+    return next();
   } catch (error) {
     return next(error);
   }
@@ -817,7 +815,7 @@ exports.deleteUserByadmn = function (req, res, next) {
   debug('Inside deleteUserByadmn service.');
   try {
     let params = _.merge(req.params, req.body);
-    
+
     if (!params) {
       return next(Boom.badRequest('Invalid user!'), null);
     } else if (!params._id || !mongoose.Types.ObjectId.isValid(params._id)) {
@@ -840,7 +838,7 @@ exports.deleteUserByadmn = function (req, res, next) {
 exports.validateAddProPhoto = function (req, res, next) {
   debug('Inside validateAddProPhoto service.');
   const params = req.body;
-  
+
   if (!params) {
     return next(Boom.badRequest('Invalid image!'), null);
   } else if (!params.uploadImgTitle) {
@@ -851,12 +849,33 @@ exports.validateAddProPhoto = function (req, res, next) {
   return next();
 };
 
-exports.addProfilePhoto = function (req, res, next) {
+async function addImage (data) {
+  return new Promise((resolve, reject) => {
+    userModel.findOneAndUpdateByFilter(data,
+      function (error, result) {
+        if (error) {
+          reject(error);
+        }
+        resolve(result);
+      });
+  });
+}
+
+async function uploadImageToAmazonDirectory (req) {
+  return new Promise((resolve, reject) => {
+    if(!req.file.filename) {
+      reject();
+    } else {
+      resolve(fs.createReadStream(APP_CONSTANTS.IMAGES_PATH.IMAGES + req.file.filename));
+    }
+  });
+}
+exports.addProfilePhoto = async function (req, res, next) {
   debug('Inside addProfilePhoto service.');
   try {
     let params = req.body;
     let newImage = params;
-    
+
     newImage.uploadImgBy = params.decodedUser.username;
     newImage.uploadImgName = req.file.filename;
     if (!params) {
@@ -880,41 +899,16 @@ exports.addProfilePhoto = function (req, res, next) {
       'runValidators': true
     };
     let imageStore;
+    let data = {
+      'filter': filter,
+      'updatedData': updatedData,
+      'options': options
+    };
 
-    async.series({
-      'addImage': function (callback) {
-        newImage.uploadImgBy = params.decodedUser.username;
-        newImage.uploadImgName = req.file.filename;
-        userModel.findOneAndUpdateByFilter({
-          'filter': filter,
-          'updatedData': updatedData,
-          'options': options
-        }, function (error, result) {
-          if (error) {
-            return callback(error);
-          }
-          if (params.froala && params.froala === 'true') {
-            imageStore = {
-              'link': `https://s3-eu-central-1.amazonaws.com/igamingcloudstr/images/${req.file.filename}`
-            };
-            return callback();
-          } else {
-            imageStore = result;
-            return callback();
-          }
-        });
-      },
-      'uploadImageToAmazonDirectory': function (callback) {
-        fs.createReadStream(APP_CONSTANTS.IMAGES_PATH.IMAGES + req.file.filename);
-        return callback();
-      }
-    }, function (error) {
-      if (error) {
-        return next(error);
-      }
-      req.session.userStore = imageStore;
-      return next();
-    });
+    imageStore = await addImage(data);
+    await uploadImageToAmazonDirectory(req);
+    req.session.userStore = imageStore;
+    return next();
   } catch (error) {
     debug('error :%o ', error);
     return next(error);
@@ -930,7 +924,7 @@ exports.deleteProfilePhoto = function (req, res, next) {
     let set = {
       'uploadImgName': ''
     };
-    
+
     userModel.findOneAndUpdateByFilter({
       'filter': filter,
       'updatedData': set
@@ -939,7 +933,7 @@ exports.deleteProfilePhoto = function (req, res, next) {
         return next(error);
       }
       let imageName = result.uploadImgName.slice(0, 25);
-      
+
       fs.unlink(APP_CONSTANTS.IMAGES_PATH.IMAGES + imageName);
       req.session.userStore = result;
       return next();

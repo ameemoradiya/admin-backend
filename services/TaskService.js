@@ -1,11 +1,9 @@
 'use strict';
 
 const _ = require('lodash');
-const async = require('async');
 const mongoose = require('mongoose');
 const debug = require('debug')('Demo:TaskService');
 const Boom = require('boom');
-
 const taskModel = require('../models/task');
 
 // add task
@@ -66,8 +64,33 @@ exports.taskSet = function (req, res, next) {
   }
 };
 
+async function getAllTask (data) {
+  return new Promise((resolve, reject) => {
+    taskModel.findAllByFilter(data,
+      function (error, result) {
+        if (error) {
+          reject(error);
+        }
+        resolve(result);
+      });
+  });
+}
+async function totalCount (searchQuery) {
+  return new Promise((resolve, reject) => {
+    taskModel.countByFilter({
+      'filter': searchQuery
+    }, function (error, count) {
+      if (error) {
+        reject(error);
+      }
+      resolve(count);
+    });
+  });
+}
 // # getAllTasks
-exports.getAll = function (req, res, next) {
+exports.getAll = async function (req, res, next) {
+  
+
   let params = req.body;
   let responseData = {
     'recordsTotal': 0,
@@ -87,7 +110,7 @@ exports.getAll = function (req, res, next) {
 
     query.sort = {};
     query.sort[sortCol] = sortType;
-    
+
     if (params.search) {
       searchQuery = {
         'content': {
@@ -95,49 +118,23 @@ exports.getAll = function (req, res, next) {
         }
       };
     }
+    let data = {
+      'filter': searchQuery,
+      'limit': size,
+      'skip': skip,
+      'sort': query.sort
+    };
+    
+    responseData.data = await getAllTask(data);
+    responseData.recordsTotal = await totalCount(searchQuery);
+    req.session.taskStore = responseData;
+    return next();
 
-    // Database query
-    async.series({
-      'getAllTask': function (innerCallback) {
-        taskModel.findAllByFilter({
-          'filter': searchQuery,
-          'limit': size,
-          'skip': skip,
-          'sort': query.sort
-        }, function (error, result) {
-          if (error) {
-            return innerCallback(error);
-          }
-          responseData.data = result;
-          return innerCallback();
-        });
-
-      },
-
-      'totalCount': function (innerCallback) {
-        taskModel.countByFilter({
-          'filter': searchQuery
-        }, function (error, count) {
-          if (error) {
-            return innerCallback(error);
-          }
-          responseData.recordsTotal = count;
-          return innerCallback();
-        });
-
-      }
-    }, function (error) {
-      if (error) {
-        debug('error :%o ', error);
-        return next(error);
-      }
-      req.session.taskStore = responseData;
-      return next();
-    });
   } catch (error) {
     debug('error :%o ', error);
     return next(error);
   }
+
 };
 
 // # updateTask

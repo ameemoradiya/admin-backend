@@ -112,7 +112,7 @@ exports.findOneAndUpdateByFilter = function (data, callback) {
     return callback(Boom.notFound('Invalid book!'));
   }
 
-  BooksModel.findOneAndUpdate(data.filter, data.updatedData, data.options).then(function (result) {
+  BooksModel.findOneAndUpdate(data.filters, data.updatedData, data.options).then(function (result) {
     if (!result) {
       return callback(Boom.badRequest('book not found!'));
     }
